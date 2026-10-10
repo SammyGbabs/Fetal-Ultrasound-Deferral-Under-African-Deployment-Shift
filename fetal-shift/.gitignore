@@ -1,0 +1,24 @@
+# Data, checkpoints and outputs live on the shared Drive, never in Git
+data/
+runs/
+outputs/
+eval/
+*.pt
+*.pth
+*.onnx
+*.npz
+*.zip
+*.tar.xz
+
+# Python and notebooks
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store

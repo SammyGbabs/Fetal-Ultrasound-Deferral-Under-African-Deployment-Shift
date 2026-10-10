@@ -1,0 +1,10 @@
+# Colab already provides torch, torchvision, numpy and pillow; do not reinstall them.
+# After the first successful Colab session, replace these lines with the exact
+# versions from `pip freeze` so both accounts run identical code.
+timm>=1.0.9
+pandas>=2.0
+scikit-learn>=1.3
+pyyaml>=6.0
+openpyxl>=3.1
+tqdm>=4.66
+requests>=2.31
