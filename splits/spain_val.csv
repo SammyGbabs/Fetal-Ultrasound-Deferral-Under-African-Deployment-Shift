@@ -1,0 +1,556 @@
+image_id,path,label,label_name,patient_id,source,machine,operator,country,official_split
+Patient00669_Plane3_1_of_1,data/raw/spain/Images/Patient00669_Plane3_1_of_1.png,1,Fetal brain,ES_00669,spain,Voluson E6,Op. 1,Spain,train
+Patient00669_Plane5_1_of_1,data/raw/spain/Images/Patient00669_Plane5_1_of_1.png,2,Fetal femur,ES_00669,spain,Voluson E6,Op. 1,Spain,train
+Patient00670_Plane3_1_of_1,data/raw/spain/Images/Patient00670_Plane3_1_of_1.png,1,Fetal brain,ES_00670,spain,Other,Other,Spain,train
+Patient00679_Plane3_1_of_1,data/raw/spain/Images/Patient00679_Plane3_1_of_1.png,1,Fetal brain,ES_00679,spain,Other,Other,Spain,train
+Patient00679_Plane5_1_of_1,data/raw/spain/Images/Patient00679_Plane5_1_of_1.png,2,Fetal femur,ES_00679,spain,Other,Other,Spain,train
+Patient00708_Plane2_1_of_2,data/raw/spain/Images/Patient00708_Plane2_1_of_2.png,0,Fetal abdomen,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane2_2_of_2,data/raw/spain/Images/Patient00708_Plane2_2_of_2.png,0,Fetal abdomen,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane3_1_of_6,data/raw/spain/Images/Patient00708_Plane3_1_of_6.png,1,Fetal brain,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane3_2_of_6,data/raw/spain/Images/Patient00708_Plane3_2_of_6.png,1,Fetal brain,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane3_3_of_6,data/raw/spain/Images/Patient00708_Plane3_3_of_6.png,1,Fetal brain,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane3_4_of_6,data/raw/spain/Images/Patient00708_Plane3_4_of_6.png,1,Fetal brain,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane3_5_of_6,data/raw/spain/Images/Patient00708_Plane3_5_of_6.png,1,Fetal brain,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane3_6_of_6,data/raw/spain/Images/Patient00708_Plane3_6_of_6.png,1,Fetal brain,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane5_1_of_1,data/raw/spain/Images/Patient00708_Plane5_1_of_1.png,2,Fetal femur,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane6_1_of_2,data/raw/spain/Images/Patient00708_Plane6_1_of_2.png,3,Fetal thorax,ES_00708,spain,Other,Other,Spain,train
+Patient00708_Plane6_2_of_2,data/raw/spain/Images/Patient00708_Plane6_2_of_2.png,3,Fetal thorax,ES_00708,spain,Other,Other,Spain,train
+Patient00711_Plane3_1_of_1,data/raw/spain/Images/Patient00711_Plane3_1_of_1.png,1,Fetal brain,ES_00711,spain,Voluson E6,Op. 2,Spain,train
+Patient00711_Plane6_1_of_4,data/raw/spain/Images/Patient00711_Plane6_1_of_4.png,3,Fetal thorax,ES_00711,spain,Voluson E6,Op. 2,Spain,train
+Patient00711_Plane6_2_of_4,data/raw/spain/Images/Patient00711_Plane6_2_of_4.png,3,Fetal thorax,ES_00711,spain,Voluson E6,Op. 2,Spain,train
+Patient00711_Plane6_3_of_4,data/raw/spain/Images/Patient00711_Plane6_3_of_4.png,3,Fetal thorax,ES_00711,spain,Voluson E6,Op. 2,Spain,train
+Patient00711_Plane6_4_of_4,data/raw/spain/Images/Patient00711_Plane6_4_of_4.png,3,Fetal thorax,ES_00711,spain,Voluson E6,Op. 2,Spain,train
+Patient00723_Plane2_1_of_1,data/raw/spain/Images/Patient00723_Plane2_1_of_1.png,0,Fetal abdomen,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane3_1_of_4,data/raw/spain/Images/Patient00723_Plane3_1_of_4.png,1,Fetal brain,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane3_2_of_4,data/raw/spain/Images/Patient00723_Plane3_2_of_4.png,1,Fetal brain,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane3_3_of_4,data/raw/spain/Images/Patient00723_Plane3_3_of_4.png,1,Fetal brain,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane3_4_of_4,data/raw/spain/Images/Patient00723_Plane3_4_of_4.png,1,Fetal brain,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane5_1_of_1,data/raw/spain/Images/Patient00723_Plane5_1_of_1.png,2,Fetal femur,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane6_1_of_4,data/raw/spain/Images/Patient00723_Plane6_1_of_4.png,3,Fetal thorax,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane6_2_of_4,data/raw/spain/Images/Patient00723_Plane6_2_of_4.png,3,Fetal thorax,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane6_3_of_4,data/raw/spain/Images/Patient00723_Plane6_3_of_4.png,3,Fetal thorax,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00723_Plane6_4_of_4,data/raw/spain/Images/Patient00723_Plane6_4_of_4.png,3,Fetal thorax,ES_00723,spain,Voluson E6,Op. 1,Spain,train
+Patient00733_Plane2_1_of_1,data/raw/spain/Images/Patient00733_Plane2_1_of_1.png,0,Fetal abdomen,ES_00733,spain,Voluson E6,Op. 1,Spain,train
+Patient00733_Plane3_1_of_4,data/raw/spain/Images/Patient00733_Plane3_1_of_4.png,1,Fetal brain,ES_00733,spain,Voluson E6,Op. 1,Spain,train
+Patient00733_Plane3_2_of_4,data/raw/spain/Images/Patient00733_Plane3_2_of_4.png,1,Fetal brain,ES_00733,spain,Voluson E6,Op. 1,Spain,train
+Patient00733_Plane3_3_of_4,data/raw/spain/Images/Patient00733_Plane3_3_of_4.png,1,Fetal brain,ES_00733,spain,Voluson E6,Op. 1,Spain,train
+Patient00733_Plane3_4_of_4,data/raw/spain/Images/Patient00733_Plane3_4_of_4.png,1,Fetal brain,ES_00733,spain,Voluson E6,Op. 1,Spain,train
+Patient00733_Plane6_1_of_1,data/raw/spain/Images/Patient00733_Plane6_1_of_1.png,3,Fetal thorax,ES_00733,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane2_1_of_1,data/raw/spain/Images/Patient00745_Plane2_1_of_1.png,0,Fetal abdomen,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane3_1_of_3,data/raw/spain/Images/Patient00745_Plane3_1_of_3.png,1,Fetal brain,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane3_2_of_3,data/raw/spain/Images/Patient00745_Plane3_2_of_3.png,1,Fetal brain,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane3_3_of_3,data/raw/spain/Images/Patient00745_Plane3_3_of_3.png,1,Fetal brain,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane5_1_of_1,data/raw/spain/Images/Patient00745_Plane5_1_of_1.png,2,Fetal femur,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane6_1_of_4,data/raw/spain/Images/Patient00745_Plane6_1_of_4.png,3,Fetal thorax,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane6_2_of_4,data/raw/spain/Images/Patient00745_Plane6_2_of_4.png,3,Fetal thorax,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane6_3_of_4,data/raw/spain/Images/Patient00745_Plane6_3_of_4.png,3,Fetal thorax,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00745_Plane6_4_of_4,data/raw/spain/Images/Patient00745_Plane6_4_of_4.png,3,Fetal thorax,ES_00745,spain,Voluson E6,Op. 1,Spain,train
+Patient00752_Plane3_1_of_3,data/raw/spain/Images/Patient00752_Plane3_1_of_3.png,1,Fetal brain,ES_00752,spain,Aloka,Op. 3,Spain,train
+Patient00752_Plane3_2_of_3,data/raw/spain/Images/Patient00752_Plane3_2_of_3.png,1,Fetal brain,ES_00752,spain,Aloka,Op. 3,Spain,train
+Patient00752_Plane3_3_of_3,data/raw/spain/Images/Patient00752_Plane3_3_of_3.png,1,Fetal brain,ES_00752,spain,Aloka,Op. 3,Spain,train
+Patient00752_Plane5_1_of_1,data/raw/spain/Images/Patient00752_Plane5_1_of_1.png,2,Fetal femur,ES_00752,spain,Aloka,Op. 3,Spain,train
+Patient00752_Plane6_1_of_1,data/raw/spain/Images/Patient00752_Plane6_1_of_1.png,3,Fetal thorax,ES_00752,spain,Aloka,Op. 3,Spain,train
+Patient00753_Plane3_1_of_2,data/raw/spain/Images/Patient00753_Plane3_1_of_2.png,1,Fetal brain,ES_00753,spain,Aloka,Op. 3,Spain,train
+Patient00753_Plane3_2_of_2,data/raw/spain/Images/Patient00753_Plane3_2_of_2.png,1,Fetal brain,ES_00753,spain,Aloka,Op. 3,Spain,train
+Patient00753_Plane5_1_of_2,data/raw/spain/Images/Patient00753_Plane5_1_of_2.png,2,Fetal femur,ES_00753,spain,Aloka,Op. 3,Spain,train
+Patient00753_Plane5_2_of_2,data/raw/spain/Images/Patient00753_Plane5_2_of_2.png,2,Fetal femur,ES_00753,spain,Aloka,Op. 3,Spain,train
+Patient00755_Plane2_1_of_1,data/raw/spain/Images/Patient00755_Plane2_1_of_1.png,0,Fetal abdomen,ES_00755,spain,Voluson E6,Op. 2,Spain,train
+Patient00755_Plane3_1_of_2,data/raw/spain/Images/Patient00755_Plane3_1_of_2.png,1,Fetal brain,ES_00755,spain,Voluson E6,Op. 2,Spain,train
+Patient00755_Plane3_2_of_2,data/raw/spain/Images/Patient00755_Plane3_2_of_2.png,1,Fetal brain,ES_00755,spain,Voluson E6,Op. 2,Spain,train
+Patient00755_Plane6_1_of_3,data/raw/spain/Images/Patient00755_Plane6_1_of_3.png,3,Fetal thorax,ES_00755,spain,Voluson E6,Op. 2,Spain,train
+Patient00755_Plane6_2_of_3,data/raw/spain/Images/Patient00755_Plane6_2_of_3.png,3,Fetal thorax,ES_00755,spain,Voluson E6,Op. 2,Spain,train
+Patient00755_Plane6_3_of_3,data/raw/spain/Images/Patient00755_Plane6_3_of_3.png,3,Fetal thorax,ES_00755,spain,Voluson E6,Op. 2,Spain,train
+Patient00763_Plane2_1_of_1,data/raw/spain/Images/Patient00763_Plane2_1_of_1.png,0,Fetal abdomen,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane3_1_of_3,data/raw/spain/Images/Patient00763_Plane3_1_of_3.png,1,Fetal brain,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane3_2_of_3,data/raw/spain/Images/Patient00763_Plane3_2_of_3.png,1,Fetal brain,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane3_3_of_3,data/raw/spain/Images/Patient00763_Plane3_3_of_3.png,1,Fetal brain,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane5_1_of_1,data/raw/spain/Images/Patient00763_Plane5_1_of_1.png,2,Fetal femur,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane6_1_of_4,data/raw/spain/Images/Patient00763_Plane6_1_of_4.png,3,Fetal thorax,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane6_2_of_4,data/raw/spain/Images/Patient00763_Plane6_2_of_4.png,3,Fetal thorax,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane6_3_of_4,data/raw/spain/Images/Patient00763_Plane6_3_of_4.png,3,Fetal thorax,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00763_Plane6_4_of_4,data/raw/spain/Images/Patient00763_Plane6_4_of_4.png,3,Fetal thorax,ES_00763,spain,Voluson E6,Op. 1,Spain,train
+Patient00772_Plane2_1_of_1,data/raw/spain/Images/Patient00772_Plane2_1_of_1.png,0,Fetal abdomen,ES_00772,spain,Aloka,Op. 3,Spain,train
+Patient00772_Plane3_1_of_3,data/raw/spain/Images/Patient00772_Plane3_1_of_3.png,1,Fetal brain,ES_00772,spain,Aloka,Op. 3,Spain,train
+Patient00772_Plane3_2_of_3,data/raw/spain/Images/Patient00772_Plane3_2_of_3.png,1,Fetal brain,ES_00772,spain,Aloka,Op. 3,Spain,train
+Patient00772_Plane3_3_of_3,data/raw/spain/Images/Patient00772_Plane3_3_of_3.png,1,Fetal brain,ES_00772,spain,Aloka,Op. 3,Spain,train
+Patient00772_Plane5_1_of_1,data/raw/spain/Images/Patient00772_Plane5_1_of_1.png,2,Fetal femur,ES_00772,spain,Aloka,Op. 3,Spain,train
+Patient00772_Plane6_1_of_1,data/raw/spain/Images/Patient00772_Plane6_1_of_1.png,3,Fetal thorax,ES_00772,spain,Aloka,Op. 3,Spain,train
+Patient00776_Plane2_1_of_1,data/raw/spain/Images/Patient00776_Plane2_1_of_1.png,0,Fetal abdomen,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane3_1_of_6,data/raw/spain/Images/Patient00776_Plane3_1_of_6.png,1,Fetal brain,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane3_2_of_6,data/raw/spain/Images/Patient00776_Plane3_2_of_6.png,1,Fetal brain,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane3_3_of_6,data/raw/spain/Images/Patient00776_Plane3_3_of_6.png,1,Fetal brain,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane3_4_of_6,data/raw/spain/Images/Patient00776_Plane3_4_of_6.png,1,Fetal brain,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane3_5_of_6,data/raw/spain/Images/Patient00776_Plane3_5_of_6.png,1,Fetal brain,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane3_6_of_6,data/raw/spain/Images/Patient00776_Plane3_6_of_6.png,1,Fetal brain,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane5_1_of_1,data/raw/spain/Images/Patient00776_Plane5_1_of_1.png,2,Fetal femur,ES_00776,spain,Other,Other,Spain,train
+Patient00776_Plane6_1_of_1,data/raw/spain/Images/Patient00776_Plane6_1_of_1.png,3,Fetal thorax,ES_00776,spain,Other,Other,Spain,train
+Patient00778_Plane2_1_of_1,data/raw/spain/Images/Patient00778_Plane2_1_of_1.png,0,Fetal abdomen,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane3_1_of_5,data/raw/spain/Images/Patient00778_Plane3_1_of_5.png,1,Fetal brain,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane3_2_of_5,data/raw/spain/Images/Patient00778_Plane3_2_of_5.png,1,Fetal brain,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane3_3_of_5,data/raw/spain/Images/Patient00778_Plane3_3_of_5.png,1,Fetal brain,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane3_4_of_5,data/raw/spain/Images/Patient00778_Plane3_4_of_5.png,1,Fetal brain,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane3_5_of_5,data/raw/spain/Images/Patient00778_Plane3_5_of_5.png,1,Fetal brain,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane5_1_of_1,data/raw/spain/Images/Patient00778_Plane5_1_of_1.png,2,Fetal femur,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane6_1_of_6,data/raw/spain/Images/Patient00778_Plane6_1_of_6.png,3,Fetal thorax,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane6_2_of_6,data/raw/spain/Images/Patient00778_Plane6_2_of_6.png,3,Fetal thorax,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane6_3_of_6,data/raw/spain/Images/Patient00778_Plane6_3_of_6.png,3,Fetal thorax,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane6_4_of_6,data/raw/spain/Images/Patient00778_Plane6_4_of_6.png,3,Fetal thorax,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane6_5_of_6,data/raw/spain/Images/Patient00778_Plane6_5_of_6.png,3,Fetal thorax,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00778_Plane6_6_of_6,data/raw/spain/Images/Patient00778_Plane6_6_of_6.png,3,Fetal thorax,ES_00778,spain,Voluson E6,Op. 1,Spain,train
+Patient00782_Plane3_1_of_4,data/raw/spain/Images/Patient00782_Plane3_1_of_4.png,1,Fetal brain,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane3_2_of_4,data/raw/spain/Images/Patient00782_Plane3_2_of_4.png,1,Fetal brain,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane3_3_of_4,data/raw/spain/Images/Patient00782_Plane3_3_of_4.png,1,Fetal brain,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane3_4_of_4,data/raw/spain/Images/Patient00782_Plane3_4_of_4.png,1,Fetal brain,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane5_1_of_1,data/raw/spain/Images/Patient00782_Plane5_1_of_1.png,2,Fetal femur,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane6_1_of_5,data/raw/spain/Images/Patient00782_Plane6_1_of_5.png,3,Fetal thorax,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane6_2_of_5,data/raw/spain/Images/Patient00782_Plane6_2_of_5.png,3,Fetal thorax,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane6_3_of_5,data/raw/spain/Images/Patient00782_Plane6_3_of_5.png,3,Fetal thorax,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane6_4_of_5,data/raw/spain/Images/Patient00782_Plane6_4_of_5.png,3,Fetal thorax,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00782_Plane6_5_of_5,data/raw/spain/Images/Patient00782_Plane6_5_of_5.png,3,Fetal thorax,ES_00782,spain,Voluson E6,Op. 2,Spain,train
+Patient00793_Plane2_1_of_1,data/raw/spain/Images/Patient00793_Plane2_1_of_1.png,0,Fetal abdomen,ES_00793,spain,Voluson E6,Op. 1,Spain,train
+Patient00793_Plane3_1_of_2,data/raw/spain/Images/Patient00793_Plane3_1_of_2.png,1,Fetal brain,ES_00793,spain,Voluson E6,Op. 1,Spain,train
+Patient00793_Plane3_2_of_2,data/raw/spain/Images/Patient00793_Plane3_2_of_2.png,1,Fetal brain,ES_00793,spain,Voluson E6,Op. 1,Spain,train
+Patient00793_Plane6_1_of_1,data/raw/spain/Images/Patient00793_Plane6_1_of_1.png,3,Fetal thorax,ES_00793,spain,Voluson E6,Op. 1,Spain,train
+Patient00810_Plane2_1_of_1,data/raw/spain/Images/Patient00810_Plane2_1_of_1.png,0,Fetal abdomen,ES_00810,spain,Aloka,Op. 3,Spain,train
+Patient00810_Plane3_1_of_2,data/raw/spain/Images/Patient00810_Plane3_1_of_2.png,1,Fetal brain,ES_00810,spain,Aloka,Op. 3,Spain,train
+Patient00810_Plane3_2_of_2,data/raw/spain/Images/Patient00810_Plane3_2_of_2.png,1,Fetal brain,ES_00810,spain,Aloka,Op. 3,Spain,train
+Patient00810_Plane5_1_of_1,data/raw/spain/Images/Patient00810_Plane5_1_of_1.png,2,Fetal femur,ES_00810,spain,Aloka,Op. 3,Spain,train
+Patient00823_Plane2_1_of_1,data/raw/spain/Images/Patient00823_Plane2_1_of_1.png,0,Fetal abdomen,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane3_1_of_4,data/raw/spain/Images/Patient00823_Plane3_1_of_4.png,1,Fetal brain,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane3_2_of_4,data/raw/spain/Images/Patient00823_Plane3_2_of_4.png,1,Fetal brain,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane3_3_of_4,data/raw/spain/Images/Patient00823_Plane3_3_of_4.png,1,Fetal brain,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane3_4_of_4,data/raw/spain/Images/Patient00823_Plane3_4_of_4.png,1,Fetal brain,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane5_1_of_1,data/raw/spain/Images/Patient00823_Plane5_1_of_1.png,2,Fetal femur,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane6_1_of_6,data/raw/spain/Images/Patient00823_Plane6_1_of_6.png,3,Fetal thorax,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane6_2_of_6,data/raw/spain/Images/Patient00823_Plane6_2_of_6.png,3,Fetal thorax,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane6_3_of_6,data/raw/spain/Images/Patient00823_Plane6_3_of_6.png,3,Fetal thorax,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane6_4_of_6,data/raw/spain/Images/Patient00823_Plane6_4_of_6.png,3,Fetal thorax,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane6_5_of_6,data/raw/spain/Images/Patient00823_Plane6_5_of_6.png,3,Fetal thorax,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00823_Plane6_6_of_6,data/raw/spain/Images/Patient00823_Plane6_6_of_6.png,3,Fetal thorax,ES_00823,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane2_1_of_1,data/raw/spain/Images/Patient00826_Plane2_1_of_1.png,0,Fetal abdomen,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane3_1_of_5,data/raw/spain/Images/Patient00826_Plane3_1_of_5.png,1,Fetal brain,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane3_2_of_5,data/raw/spain/Images/Patient00826_Plane3_2_of_5.png,1,Fetal brain,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane3_3_of_5,data/raw/spain/Images/Patient00826_Plane3_3_of_5.png,1,Fetal brain,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane3_4_of_5,data/raw/spain/Images/Patient00826_Plane3_4_of_5.png,1,Fetal brain,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane3_5_of_5,data/raw/spain/Images/Patient00826_Plane3_5_of_5.png,1,Fetal brain,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane5_1_of_2,data/raw/spain/Images/Patient00826_Plane5_1_of_2.png,2,Fetal femur,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane5_2_of_2,data/raw/spain/Images/Patient00826_Plane5_2_of_2.png,2,Fetal femur,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane6_1_of_5,data/raw/spain/Images/Patient00826_Plane6_1_of_5.png,3,Fetal thorax,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane6_2_of_5,data/raw/spain/Images/Patient00826_Plane6_2_of_5.png,3,Fetal thorax,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane6_3_of_5,data/raw/spain/Images/Patient00826_Plane6_3_of_5.png,3,Fetal thorax,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane6_4_of_5,data/raw/spain/Images/Patient00826_Plane6_4_of_5.png,3,Fetal thorax,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00826_Plane6_5_of_5,data/raw/spain/Images/Patient00826_Plane6_5_of_5.png,3,Fetal thorax,ES_00826,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane2_1_of_1,data/raw/spain/Images/Patient00829_Plane2_1_of_1.png,0,Fetal abdomen,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane3_1_of_5,data/raw/spain/Images/Patient00829_Plane3_1_of_5.png,1,Fetal brain,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane3_2_of_5,data/raw/spain/Images/Patient00829_Plane3_2_of_5.png,1,Fetal brain,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane3_3_of_5,data/raw/spain/Images/Patient00829_Plane3_3_of_5.png,1,Fetal brain,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane3_4_of_5,data/raw/spain/Images/Patient00829_Plane3_4_of_5.png,1,Fetal brain,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane3_5_of_5,data/raw/spain/Images/Patient00829_Plane3_5_of_5.png,1,Fetal brain,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane5_1_of_3,data/raw/spain/Images/Patient00829_Plane5_1_of_3.png,2,Fetal femur,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane5_2_of_3,data/raw/spain/Images/Patient00829_Plane5_2_of_3.png,2,Fetal femur,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane5_3_of_3,data/raw/spain/Images/Patient00829_Plane5_3_of_3.png,2,Fetal femur,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane6_1_of_4,data/raw/spain/Images/Patient00829_Plane6_1_of_4.png,3,Fetal thorax,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane6_2_of_4,data/raw/spain/Images/Patient00829_Plane6_2_of_4.png,3,Fetal thorax,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane6_3_of_4,data/raw/spain/Images/Patient00829_Plane6_3_of_4.png,3,Fetal thorax,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00829_Plane6_4_of_4,data/raw/spain/Images/Patient00829_Plane6_4_of_4.png,3,Fetal thorax,ES_00829,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane2_1_of_1,data/raw/spain/Images/Patient00837_Plane2_1_of_1.png,0,Fetal abdomen,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane3_1_of_7,data/raw/spain/Images/Patient00837_Plane3_1_of_7.png,1,Fetal brain,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane3_2_of_7,data/raw/spain/Images/Patient00837_Plane3_2_of_7.png,1,Fetal brain,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane3_3_of_7,data/raw/spain/Images/Patient00837_Plane3_3_of_7.png,1,Fetal brain,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane3_4_of_7,data/raw/spain/Images/Patient00837_Plane3_4_of_7.png,1,Fetal brain,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane3_5_of_7,data/raw/spain/Images/Patient00837_Plane3_5_of_7.png,1,Fetal brain,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane3_6_of_7,data/raw/spain/Images/Patient00837_Plane3_6_of_7.png,1,Fetal brain,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane3_7_of_7,data/raw/spain/Images/Patient00837_Plane3_7_of_7.png,1,Fetal brain,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane5_1_of_2,data/raw/spain/Images/Patient00837_Plane5_1_of_2.png,2,Fetal femur,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane5_2_of_2,data/raw/spain/Images/Patient00837_Plane5_2_of_2.png,2,Fetal femur,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane6_1_of_3,data/raw/spain/Images/Patient00837_Plane6_1_of_3.png,3,Fetal thorax,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane6_2_of_3,data/raw/spain/Images/Patient00837_Plane6_2_of_3.png,3,Fetal thorax,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00837_Plane6_3_of_3,data/raw/spain/Images/Patient00837_Plane6_3_of_3.png,3,Fetal thorax,ES_00837,spain,Voluson E6,Op. 1,Spain,train
+Patient00840_Plane2_1_of_2,data/raw/spain/Images/Patient00840_Plane2_1_of_2.png,0,Fetal abdomen,ES_00840,spain,Other,Other,Spain,train
+Patient00840_Plane2_2_of_2,data/raw/spain/Images/Patient00840_Plane2_2_of_2.png,0,Fetal abdomen,ES_00840,spain,Other,Other,Spain,train
+Patient00840_Plane3_1_of_3,data/raw/spain/Images/Patient00840_Plane3_1_of_3.png,1,Fetal brain,ES_00840,spain,Other,Other,Spain,train
+Patient00840_Plane3_2_of_3,data/raw/spain/Images/Patient00840_Plane3_2_of_3.png,1,Fetal brain,ES_00840,spain,Other,Other,Spain,train
+Patient00840_Plane3_3_of_3,data/raw/spain/Images/Patient00840_Plane3_3_of_3.png,1,Fetal brain,ES_00840,spain,Other,Other,Spain,train
+Patient00840_Plane5_1_of_1,data/raw/spain/Images/Patient00840_Plane5_1_of_1.png,2,Fetal femur,ES_00840,spain,Other,Other,Spain,train
+Patient00840_Plane6_1_of_1,data/raw/spain/Images/Patient00840_Plane6_1_of_1.png,3,Fetal thorax,ES_00840,spain,Other,Other,Spain,train
+Patient00846_Plane2_1_of_1,data/raw/spain/Images/Patient00846_Plane2_1_of_1.png,0,Fetal abdomen,ES_00846,spain,Voluson E6,Op. 2,Spain,train
+Patient00846_Plane3_1_of_2,data/raw/spain/Images/Patient00846_Plane3_1_of_2.png,1,Fetal brain,ES_00846,spain,Voluson E6,Op. 2,Spain,train
+Patient00846_Plane3_2_of_2,data/raw/spain/Images/Patient00846_Plane3_2_of_2.png,1,Fetal brain,ES_00846,spain,Voluson E6,Op. 2,Spain,train
+Patient00846_Plane6_1_of_4,data/raw/spain/Images/Patient00846_Plane6_1_of_4.png,3,Fetal thorax,ES_00846,spain,Voluson E6,Op. 2,Spain,train
+Patient00846_Plane6_2_of_4,data/raw/spain/Images/Patient00846_Plane6_2_of_4.png,3,Fetal thorax,ES_00846,spain,Voluson E6,Op. 2,Spain,train
+Patient00846_Plane6_3_of_4,data/raw/spain/Images/Patient00846_Plane6_3_of_4.png,3,Fetal thorax,ES_00846,spain,Voluson E6,Op. 2,Spain,train
+Patient00846_Plane6_4_of_4,data/raw/spain/Images/Patient00846_Plane6_4_of_4.png,3,Fetal thorax,ES_00846,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane2_1_of_1,data/raw/spain/Images/Patient00850_Plane2_1_of_1.png,0,Fetal abdomen,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane3_1_of_4,data/raw/spain/Images/Patient00850_Plane3_1_of_4.png,1,Fetal brain,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane3_2_of_4,data/raw/spain/Images/Patient00850_Plane3_2_of_4.png,1,Fetal brain,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane3_3_of_4,data/raw/spain/Images/Patient00850_Plane3_3_of_4.png,1,Fetal brain,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane3_4_of_4,data/raw/spain/Images/Patient00850_Plane3_4_of_4.png,1,Fetal brain,ES_00850,spain,Voluson E6,Op. 1,Spain,train
+Patient00850_Plane5_1_of_1,data/raw/spain/Images/Patient00850_Plane5_1_of_1.png,2,Fetal femur,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane6_1_of_4,data/raw/spain/Images/Patient00850_Plane6_1_of_4.png,3,Fetal thorax,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane6_2_of_4,data/raw/spain/Images/Patient00850_Plane6_2_of_4.png,3,Fetal thorax,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00850_Plane6_3_of_4,data/raw/spain/Images/Patient00850_Plane6_3_of_4.png,3,Fetal thorax,ES_00850,spain,Voluson E6,Op. 1,Spain,train
+Patient00850_Plane6_4_of_4,data/raw/spain/Images/Patient00850_Plane6_4_of_4.png,3,Fetal thorax,ES_00850,spain,Voluson E6,Op. 2,Spain,train
+Patient00876_Plane3_1_of_2,data/raw/spain/Images/Patient00876_Plane3_1_of_2.png,1,Fetal brain,ES_00876,spain,Voluson E6,Op. 2,Spain,train
+Patient00876_Plane3_2_of_2,data/raw/spain/Images/Patient00876_Plane3_2_of_2.png,1,Fetal brain,ES_00876,spain,Voluson E6,Op. 2,Spain,train
+Patient00876_Plane6_1_of_5,data/raw/spain/Images/Patient00876_Plane6_1_of_5.png,3,Fetal thorax,ES_00876,spain,Voluson E6,Op. 2,Spain,train
+Patient00876_Plane6_2_of_5,data/raw/spain/Images/Patient00876_Plane6_2_of_5.png,3,Fetal thorax,ES_00876,spain,Voluson E6,Op. 2,Spain,train
+Patient00876_Plane6_3_of_5,data/raw/spain/Images/Patient00876_Plane6_3_of_5.png,3,Fetal thorax,ES_00876,spain,Voluson E6,Op. 2,Spain,train
+Patient00876_Plane6_4_of_5,data/raw/spain/Images/Patient00876_Plane6_4_of_5.png,3,Fetal thorax,ES_00876,spain,Voluson E6,Op. 2,Spain,train
+Patient00876_Plane6_5_of_5,data/raw/spain/Images/Patient00876_Plane6_5_of_5.png,3,Fetal thorax,ES_00876,spain,Voluson E6,Op. 2,Spain,train
+Patient00880_Plane3_1_of_2,data/raw/spain/Images/Patient00880_Plane3_1_of_2.png,1,Fetal brain,ES_00880,spain,Voluson E6,Op. 1,Spain,train
+Patient00880_Plane3_2_of_2,data/raw/spain/Images/Patient00880_Plane3_2_of_2.png,1,Fetal brain,ES_00880,spain,Voluson E6,Op. 1,Spain,train
+Patient00880_Plane5_1_of_1,data/raw/spain/Images/Patient00880_Plane5_1_of_1.png,2,Fetal femur,ES_00880,spain,Voluson E6,Op. 1,Spain,train
+Patient00880_Plane6_1_of_4,data/raw/spain/Images/Patient00880_Plane6_1_of_4.png,3,Fetal thorax,ES_00880,spain,Voluson E6,Op. 1,Spain,train
+Patient00880_Plane6_2_of_4,data/raw/spain/Images/Patient00880_Plane6_2_of_4.png,3,Fetal thorax,ES_00880,spain,Voluson E6,Op. 1,Spain,train
+Patient00880_Plane6_3_of_4,data/raw/spain/Images/Patient00880_Plane6_3_of_4.png,3,Fetal thorax,ES_00880,spain,Voluson E6,Op. 1,Spain,train
+Patient00880_Plane6_4_of_4,data/raw/spain/Images/Patient00880_Plane6_4_of_4.png,3,Fetal thorax,ES_00880,spain,Voluson E6,Op. 1,Spain,train
+Patient00891_Plane2_1_of_2,data/raw/spain/Images/Patient00891_Plane2_1_of_2.png,0,Fetal abdomen,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00891_Plane2_2_of_2,data/raw/spain/Images/Patient00891_Plane2_2_of_2.png,0,Fetal abdomen,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00891_Plane3_1_of_3,data/raw/spain/Images/Patient00891_Plane3_1_of_3.png,1,Fetal brain,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00891_Plane3_2_of_3,data/raw/spain/Images/Patient00891_Plane3_2_of_3.png,1,Fetal brain,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00891_Plane3_3_of_3,data/raw/spain/Images/Patient00891_Plane3_3_of_3.png,1,Fetal brain,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00891_Plane5_1_of_1,data/raw/spain/Images/Patient00891_Plane5_1_of_1.png,2,Fetal femur,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00891_Plane6_1_of_2,data/raw/spain/Images/Patient00891_Plane6_1_of_2.png,3,Fetal thorax,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00891_Plane6_2_of_2,data/raw/spain/Images/Patient00891_Plane6_2_of_2.png,3,Fetal thorax,ES_00891,spain,Aloka,Op. 3,Spain,train
+Patient00898_Plane3_1_of_2,data/raw/spain/Images/Patient00898_Plane3_1_of_2.png,1,Fetal brain,ES_00898,spain,Voluson E6,Op. 1,Spain,train
+Patient00898_Plane3_2_of_2,data/raw/spain/Images/Patient00898_Plane3_2_of_2.png,1,Fetal brain,ES_00898,spain,Voluson E6,Op. 1,Spain,train
+Patient00898_Plane6_1_of_4,data/raw/spain/Images/Patient00898_Plane6_1_of_4.png,3,Fetal thorax,ES_00898,spain,Voluson E6,Op. 1,Spain,train
+Patient00898_Plane6_2_of_4,data/raw/spain/Images/Patient00898_Plane6_2_of_4.png,3,Fetal thorax,ES_00898,spain,Voluson E6,Op. 1,Spain,train
+Patient00898_Plane6_3_of_4,data/raw/spain/Images/Patient00898_Plane6_3_of_4.png,3,Fetal thorax,ES_00898,spain,Voluson E6,Op. 1,Spain,train
+Patient00898_Plane6_4_of_4,data/raw/spain/Images/Patient00898_Plane6_4_of_4.png,3,Fetal thorax,ES_00898,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane3_1_of_5,data/raw/spain/Images/Patient00902_Plane3_1_of_5.png,1,Fetal brain,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane3_2_of_5,data/raw/spain/Images/Patient00902_Plane3_2_of_5.png,1,Fetal brain,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane3_3_of_5,data/raw/spain/Images/Patient00902_Plane3_3_of_5.png,1,Fetal brain,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane3_4_of_5,data/raw/spain/Images/Patient00902_Plane3_4_of_5.png,1,Fetal brain,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane3_5_of_5,data/raw/spain/Images/Patient00902_Plane3_5_of_5.png,1,Fetal brain,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_1_of_9,data/raw/spain/Images/Patient00902_Plane6_1_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_2_of_9,data/raw/spain/Images/Patient00902_Plane6_2_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_3_of_9,data/raw/spain/Images/Patient00902_Plane6_3_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_4_of_9,data/raw/spain/Images/Patient00902_Plane6_4_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_5_of_9,data/raw/spain/Images/Patient00902_Plane6_5_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_6_of_9,data/raw/spain/Images/Patient00902_Plane6_6_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_7_of_9,data/raw/spain/Images/Patient00902_Plane6_7_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_8_of_9,data/raw/spain/Images/Patient00902_Plane6_8_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00902_Plane6_9_of_9,data/raw/spain/Images/Patient00902_Plane6_9_of_9.png,3,Fetal thorax,ES_00902,spain,Voluson E6,Op. 1,Spain,train
+Patient00903_Plane2_1_of_1,data/raw/spain/Images/Patient00903_Plane2_1_of_1.png,0,Fetal abdomen,ES_00903,spain,Voluson E6,Op. 2,Spain,train
+Patient00903_Plane3_1_of_1,data/raw/spain/Images/Patient00903_Plane3_1_of_1.png,1,Fetal brain,ES_00903,spain,Voluson E6,Op. 2,Spain,train
+Patient00903_Plane6_1_of_3,data/raw/spain/Images/Patient00903_Plane6_1_of_3.png,3,Fetal thorax,ES_00903,spain,Voluson E6,Op. 2,Spain,train
+Patient00903_Plane6_2_of_3,data/raw/spain/Images/Patient00903_Plane6_2_of_3.png,3,Fetal thorax,ES_00903,spain,Voluson E6,Op. 2,Spain,train
+Patient00903_Plane6_3_of_3,data/raw/spain/Images/Patient00903_Plane6_3_of_3.png,3,Fetal thorax,ES_00903,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane2_1_of_1,data/raw/spain/Images/Patient00904_Plane2_1_of_1.png,0,Fetal abdomen,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane3_1_of_4,data/raw/spain/Images/Patient00904_Plane3_1_of_4.png,1,Fetal brain,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane3_2_of_4,data/raw/spain/Images/Patient00904_Plane3_2_of_4.png,1,Fetal brain,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane3_3_of_4,data/raw/spain/Images/Patient00904_Plane3_3_of_4.png,1,Fetal brain,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane3_4_of_4,data/raw/spain/Images/Patient00904_Plane3_4_of_4.png,1,Fetal brain,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane6_1_of_3,data/raw/spain/Images/Patient00904_Plane6_1_of_3.png,3,Fetal thorax,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane6_2_of_3,data/raw/spain/Images/Patient00904_Plane6_2_of_3.png,3,Fetal thorax,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00904_Plane6_3_of_3,data/raw/spain/Images/Patient00904_Plane6_3_of_3.png,3,Fetal thorax,ES_00904,spain,Voluson E6,Op. 2,Spain,train
+Patient00906_Plane2_1_of_2,data/raw/spain/Images/Patient00906_Plane2_1_of_2.png,0,Fetal abdomen,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00906_Plane2_2_of_2,data/raw/spain/Images/Patient00906_Plane2_2_of_2.png,0,Fetal abdomen,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00906_Plane3_1_of_3,data/raw/spain/Images/Patient00906_Plane3_1_of_3.png,1,Fetal brain,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00906_Plane3_2_of_3,data/raw/spain/Images/Patient00906_Plane3_2_of_3.png,1,Fetal brain,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00906_Plane3_3_of_3,data/raw/spain/Images/Patient00906_Plane3_3_of_3.png,1,Fetal brain,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00906_Plane5_1_of_2,data/raw/spain/Images/Patient00906_Plane5_1_of_2.png,2,Fetal femur,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00906_Plane5_2_of_2,data/raw/spain/Images/Patient00906_Plane5_2_of_2.png,2,Fetal femur,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00906_Plane6_1_of_1,data/raw/spain/Images/Patient00906_Plane6_1_of_1.png,3,Fetal thorax,ES_00906,spain,Aloka,Op. 3,Spain,train
+Patient00914_Plane3_1_of_4,data/raw/spain/Images/Patient00914_Plane3_1_of_4.png,1,Fetal brain,ES_00914,spain,Voluson E6,Op. 1,Spain,train
+Patient00914_Plane3_2_of_4,data/raw/spain/Images/Patient00914_Plane3_2_of_4.png,1,Fetal brain,ES_00914,spain,Voluson E6,Op. 1,Spain,train
+Patient00914_Plane3_3_of_4,data/raw/spain/Images/Patient00914_Plane3_3_of_4.png,1,Fetal brain,ES_00914,spain,Voluson E6,Op. 1,Spain,train
+Patient00914_Plane3_4_of_4,data/raw/spain/Images/Patient00914_Plane3_4_of_4.png,1,Fetal brain,ES_00914,spain,Voluson E6,Op. 1,Spain,train
+Patient00914_Plane6_1_of_1,data/raw/spain/Images/Patient00914_Plane6_1_of_1.png,3,Fetal thorax,ES_00914,spain,Voluson E6,Op. 1,Spain,train
+Patient00925_Plane2_1_of_1,data/raw/spain/Images/Patient00925_Plane2_1_of_1.png,0,Fetal abdomen,ES_00925,spain,Aloka,Op. 3,Spain,train
+Patient00925_Plane3_1_of_2,data/raw/spain/Images/Patient00925_Plane3_1_of_2.png,1,Fetal brain,ES_00925,spain,Aloka,Op. 3,Spain,train
+Patient00925_Plane3_2_of_2,data/raw/spain/Images/Patient00925_Plane3_2_of_2.png,1,Fetal brain,ES_00925,spain,Aloka,Op. 3,Spain,train
+Patient00925_Plane5_1_of_1,data/raw/spain/Images/Patient00925_Plane5_1_of_1.png,2,Fetal femur,ES_00925,spain,Aloka,Op. 3,Spain,train
+Patient00933_Plane3_1_of_4,data/raw/spain/Images/Patient00933_Plane3_1_of_4.png,1,Fetal brain,ES_00933,spain,Voluson E6,Op. 2,Spain,train
+Patient00933_Plane3_2_of_4,data/raw/spain/Images/Patient00933_Plane3_2_of_4.png,1,Fetal brain,ES_00933,spain,Voluson E6,Op. 2,Spain,train
+Patient00933_Plane3_3_of_4,data/raw/spain/Images/Patient00933_Plane3_3_of_4.png,1,Fetal brain,ES_00933,spain,Voluson E6,Op. 2,Spain,train
+Patient00933_Plane3_4_of_4,data/raw/spain/Images/Patient00933_Plane3_4_of_4.png,1,Fetal brain,ES_00933,spain,Voluson E6,Op. 2,Spain,train
+Patient00933_Plane6_1_of_3,data/raw/spain/Images/Patient00933_Plane6_1_of_3.png,3,Fetal thorax,ES_00933,spain,Voluson E6,Op. 2,Spain,train
+Patient00933_Plane6_2_of_3,data/raw/spain/Images/Patient00933_Plane6_2_of_3.png,3,Fetal thorax,ES_00933,spain,Voluson E6,Op. 2,Spain,train
+Patient00933_Plane6_3_of_3,data/raw/spain/Images/Patient00933_Plane6_3_of_3.png,3,Fetal thorax,ES_00933,spain,Voluson E6,Op. 2,Spain,train
+Patient00936_Plane3_1_of_1,data/raw/spain/Images/Patient00936_Plane3_1_of_1.png,1,Fetal brain,ES_00936,spain,Voluson E6,Op. 1,Spain,train
+Patient00936_Plane5_1_of_2,data/raw/spain/Images/Patient00936_Plane5_1_of_2.png,2,Fetal femur,ES_00936,spain,Voluson E6,Op. 1,Spain,train
+Patient00936_Plane5_2_of_2,data/raw/spain/Images/Patient00936_Plane5_2_of_2.png,2,Fetal femur,ES_00936,spain,Voluson E6,Op. 1,Spain,train
+Patient00936_Plane6_1_of_4,data/raw/spain/Images/Patient00936_Plane6_1_of_4.png,3,Fetal thorax,ES_00936,spain,Voluson E6,Op. 1,Spain,train
+Patient00936_Plane6_2_of_4,data/raw/spain/Images/Patient00936_Plane6_2_of_4.png,3,Fetal thorax,ES_00936,spain,Voluson E6,Op. 1,Spain,train
+Patient00936_Plane6_3_of_4,data/raw/spain/Images/Patient00936_Plane6_3_of_4.png,3,Fetal thorax,ES_00936,spain,Voluson E6,Op. 1,Spain,train
+Patient00936_Plane6_4_of_4,data/raw/spain/Images/Patient00936_Plane6_4_of_4.png,3,Fetal thorax,ES_00936,spain,Voluson E6,Op. 1,Spain,train
+Patient00953_Plane2_1_of_1,data/raw/spain/Images/Patient00953_Plane2_1_of_1.png,0,Fetal abdomen,ES_00953,spain,Aloka,Op. 3,Spain,train
+Patient00953_Plane3_1_of_3,data/raw/spain/Images/Patient00953_Plane3_1_of_3.png,1,Fetal brain,ES_00953,spain,Aloka,Op. 3,Spain,train
+Patient00953_Plane3_2_of_3,data/raw/spain/Images/Patient00953_Plane3_2_of_3.png,1,Fetal brain,ES_00953,spain,Aloka,Op. 3,Spain,train
+Patient00953_Plane3_3_of_3,data/raw/spain/Images/Patient00953_Plane3_3_of_3.png,1,Fetal brain,ES_00953,spain,Aloka,Op. 3,Spain,train
+Patient00953_Plane5_1_of_1,data/raw/spain/Images/Patient00953_Plane5_1_of_1.png,2,Fetal femur,ES_00953,spain,Aloka,Op. 3,Spain,train
+Patient00953_Plane6_1_of_1,data/raw/spain/Images/Patient00953_Plane6_1_of_1.png,3,Fetal thorax,ES_00953,spain,Aloka,Op. 3,Spain,train
+Patient00954_Plane2_1_of_1,data/raw/spain/Images/Patient00954_Plane2_1_of_1.png,0,Fetal abdomen,ES_00954,spain,Aloka,Op. 3,Spain,train
+Patient00954_Plane3_1_of_2,data/raw/spain/Images/Patient00954_Plane3_1_of_2.png,1,Fetal brain,ES_00954,spain,Aloka,Op. 3,Spain,train
+Patient00954_Plane3_2_of_2,data/raw/spain/Images/Patient00954_Plane3_2_of_2.png,1,Fetal brain,ES_00954,spain,Aloka,Op. 3,Spain,train
+Patient00954_Plane5_1_of_3,data/raw/spain/Images/Patient00954_Plane5_1_of_3.png,2,Fetal femur,ES_00954,spain,Aloka,Op. 3,Spain,train
+Patient00954_Plane5_2_of_3,data/raw/spain/Images/Patient00954_Plane5_2_of_3.png,2,Fetal femur,ES_00954,spain,Aloka,Op. 3,Spain,train
+Patient00954_Plane5_3_of_3,data/raw/spain/Images/Patient00954_Plane5_3_of_3.png,2,Fetal femur,ES_00954,spain,Aloka,Op. 3,Spain,train
+Patient00954_Plane6_1_of_1,data/raw/spain/Images/Patient00954_Plane6_1_of_1.png,3,Fetal thorax,ES_00954,spain,Aloka,Op. 3,Spain,train
+Patient00964_Plane2_1_of_1,data/raw/spain/Images/Patient00964_Plane2_1_of_1.png,0,Fetal abdomen,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane3_1_of_4,data/raw/spain/Images/Patient00964_Plane3_1_of_4.png,1,Fetal brain,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane3_2_of_4,data/raw/spain/Images/Patient00964_Plane3_2_of_4.png,1,Fetal brain,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane3_3_of_4,data/raw/spain/Images/Patient00964_Plane3_3_of_4.png,1,Fetal brain,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane3_4_of_4,data/raw/spain/Images/Patient00964_Plane3_4_of_4.png,1,Fetal brain,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane5_1_of_3,data/raw/spain/Images/Patient00964_Plane5_1_of_3.png,2,Fetal femur,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane5_2_of_3,data/raw/spain/Images/Patient00964_Plane5_2_of_3.png,2,Fetal femur,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane5_3_of_3,data/raw/spain/Images/Patient00964_Plane5_3_of_3.png,2,Fetal femur,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00964_Plane6_1_of_1,data/raw/spain/Images/Patient00964_Plane6_1_of_1.png,3,Fetal thorax,ES_00964,spain,Voluson E6,Op. 1,Spain,train
+Patient00985_Plane3_1_of_2,data/raw/spain/Images/Patient00985_Plane3_1_of_2.png,1,Fetal brain,ES_00985,spain,Voluson E6,Op. 2,Spain,train
+Patient00985_Plane3_2_of_2,data/raw/spain/Images/Patient00985_Plane3_2_of_2.png,1,Fetal brain,ES_00985,spain,Voluson E6,Op. 2,Spain,train
+Patient00985_Plane5_1_of_4,data/raw/spain/Images/Patient00985_Plane5_1_of_4.png,2,Fetal femur,ES_00985,spain,Voluson E6,Op. 2,Spain,train
+Patient00985_Plane5_2_of_4,data/raw/spain/Images/Patient00985_Plane5_2_of_4.png,2,Fetal femur,ES_00985,spain,Voluson E6,Op. 2,Spain,train
+Patient00985_Plane5_3_of_4,data/raw/spain/Images/Patient00985_Plane5_3_of_4.png,2,Fetal femur,ES_00985,spain,Voluson E6,Op. 2,Spain,train
+Patient00985_Plane5_4_of_4,data/raw/spain/Images/Patient00985_Plane5_4_of_4.png,2,Fetal femur,ES_00985,spain,Voluson E6,Op. 2,Spain,train
+Patient00985_Plane6_1_of_1,data/raw/spain/Images/Patient00985_Plane6_1_of_1.png,3,Fetal thorax,ES_00985,spain,Voluson E6,Op. 2,Spain,train
+Patient00996_Plane2_1_of_1,data/raw/spain/Images/Patient00996_Plane2_1_of_1.png,0,Fetal abdomen,ES_00996,spain,Voluson E6,Op. 1,Spain,train
+Patient00996_Plane3_1_of_2,data/raw/spain/Images/Patient00996_Plane3_1_of_2.png,1,Fetal brain,ES_00996,spain,Voluson E6,Op. 2,Spain,train
+Patient00996_Plane3_2_of_2,data/raw/spain/Images/Patient00996_Plane3_2_of_2.png,1,Fetal brain,ES_00996,spain,Voluson E6,Op. 1,Spain,train
+Patient00996_Plane5_1_of_1,data/raw/spain/Images/Patient00996_Plane5_1_of_1.png,2,Fetal femur,ES_00996,spain,Voluson E6,Op. 1,Spain,train
+Patient00996_Plane6_1_of_2,data/raw/spain/Images/Patient00996_Plane6_1_of_2.png,3,Fetal thorax,ES_00996,spain,Voluson E6,Op. 2,Spain,train
+Patient00996_Plane6_2_of_2,data/raw/spain/Images/Patient00996_Plane6_2_of_2.png,3,Fetal thorax,ES_00996,spain,Voluson E6,Op. 2,Spain,train
+Patient00997_Plane6_1_of_3,data/raw/spain/Images/Patient00997_Plane6_1_of_3.png,3,Fetal thorax,ES_00997,spain,Voluson E6,Op. 2,Spain,train
+Patient00997_Plane6_2_of_3,data/raw/spain/Images/Patient00997_Plane6_2_of_3.png,3,Fetal thorax,ES_00997,spain,Voluson E6,Op. 2,Spain,train
+Patient00997_Plane6_3_of_3,data/raw/spain/Images/Patient00997_Plane6_3_of_3.png,3,Fetal thorax,ES_00997,spain,Voluson E6,Op. 2,Spain,train
+Patient01008_Plane3_1_of_2,data/raw/spain/Images/Patient01008_Plane3_1_of_2.png,1,Fetal brain,ES_01008,spain,Aloka,Op. 3,Spain,train
+Patient01008_Plane3_2_of_2,data/raw/spain/Images/Patient01008_Plane3_2_of_2.png,1,Fetal brain,ES_01008,spain,Aloka,Op. 3,Spain,train
+Patient01008_Plane5_1_of_1,data/raw/spain/Images/Patient01008_Plane5_1_of_1.png,2,Fetal femur,ES_01008,spain,Aloka,Op. 3,Spain,train
+Patient01008_Plane6_1_of_1,data/raw/spain/Images/Patient01008_Plane6_1_of_1.png,3,Fetal thorax,ES_01008,spain,Aloka,Op. 3,Spain,train
+Patient01014_Plane2_1_of_1,data/raw/spain/Images/Patient01014_Plane2_1_of_1.png,0,Fetal abdomen,ES_01014,spain,Voluson E6,Op. 1,Spain,train
+Patient01014_Plane3_1_of_3,data/raw/spain/Images/Patient01014_Plane3_1_of_3.png,1,Fetal brain,ES_01014,spain,Voluson E6,Op. 1,Spain,train
+Patient01014_Plane3_2_of_3,data/raw/spain/Images/Patient01014_Plane3_2_of_3.png,1,Fetal brain,ES_01014,spain,Voluson E6,Op. 1,Spain,train
+Patient01014_Plane3_3_of_3,data/raw/spain/Images/Patient01014_Plane3_3_of_3.png,1,Fetal brain,ES_01014,spain,Voluson E6,Op. 1,Spain,train
+Patient01014_Plane5_1_of_1,data/raw/spain/Images/Patient01014_Plane5_1_of_1.png,2,Fetal femur,ES_01014,spain,Voluson E6,Op. 1,Spain,train
+Patient01014_Plane6_1_of_2,data/raw/spain/Images/Patient01014_Plane6_1_of_2.png,3,Fetal thorax,ES_01014,spain,Voluson E6,Op. 1,Spain,train
+Patient01014_Plane6_2_of_2,data/raw/spain/Images/Patient01014_Plane6_2_of_2.png,3,Fetal thorax,ES_01014,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane2_1_of_1,data/raw/spain/Images/Patient01015_Plane2_1_of_1.png,0,Fetal abdomen,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane3_1_of_7,data/raw/spain/Images/Patient01015_Plane3_1_of_7.png,1,Fetal brain,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane3_2_of_7,data/raw/spain/Images/Patient01015_Plane3_2_of_7.png,1,Fetal brain,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane3_3_of_7,data/raw/spain/Images/Patient01015_Plane3_3_of_7.png,1,Fetal brain,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane3_4_of_7,data/raw/spain/Images/Patient01015_Plane3_4_of_7.png,1,Fetal brain,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane3_5_of_7,data/raw/spain/Images/Patient01015_Plane3_5_of_7.png,1,Fetal brain,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane3_6_of_7,data/raw/spain/Images/Patient01015_Plane3_6_of_7.png,1,Fetal brain,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane3_7_of_7,data/raw/spain/Images/Patient01015_Plane3_7_of_7.png,1,Fetal brain,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane5_1_of_1,data/raw/spain/Images/Patient01015_Plane5_1_of_1.png,2,Fetal femur,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane6_1_of_3,data/raw/spain/Images/Patient01015_Plane6_1_of_3.png,3,Fetal thorax,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane6_2_of_3,data/raw/spain/Images/Patient01015_Plane6_2_of_3.png,3,Fetal thorax,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01015_Plane6_3_of_3,data/raw/spain/Images/Patient01015_Plane6_3_of_3.png,3,Fetal thorax,ES_01015,spain,Voluson E6,Op. 1,Spain,train
+Patient01017_Plane3_1_of_5,data/raw/spain/Images/Patient01017_Plane3_1_of_5.png,1,Fetal brain,ES_01017,spain,Voluson E6,Op. 1,Spain,train
+Patient01017_Plane3_2_of_5,data/raw/spain/Images/Patient01017_Plane3_2_of_5.png,1,Fetal brain,ES_01017,spain,Voluson E6,Op. 1,Spain,train
+Patient01017_Plane3_3_of_5,data/raw/spain/Images/Patient01017_Plane3_3_of_5.png,1,Fetal brain,ES_01017,spain,Voluson E6,Op. 1,Spain,train
+Patient01017_Plane3_4_of_5,data/raw/spain/Images/Patient01017_Plane3_4_of_5.png,1,Fetal brain,ES_01017,spain,Voluson E6,Op. 1,Spain,train
+Patient01017_Plane3_5_of_5,data/raw/spain/Images/Patient01017_Plane3_5_of_5.png,1,Fetal brain,ES_01017,spain,Voluson E6,Op. 1,Spain,train
+Patient01017_Plane6_1_of_2,data/raw/spain/Images/Patient01017_Plane6_1_of_2.png,3,Fetal thorax,ES_01017,spain,Voluson E6,Op. 1,Spain,train
+Patient01017_Plane6_2_of_2,data/raw/spain/Images/Patient01017_Plane6_2_of_2.png,3,Fetal thorax,ES_01017,spain,Voluson E6,Op. 1,Spain,train
+Patient01018_Plane2_1_of_1,data/raw/spain/Images/Patient01018_Plane2_1_of_1.png,0,Fetal abdomen,ES_01018,spain,Other,Other,Spain,train
+Patient01018_Plane3_1_of_3,data/raw/spain/Images/Patient01018_Plane3_1_of_3.png,1,Fetal brain,ES_01018,spain,Other,Other,Spain,train
+Patient01018_Plane3_2_of_3,data/raw/spain/Images/Patient01018_Plane3_2_of_3.png,1,Fetal brain,ES_01018,spain,Other,Other,Spain,train
+Patient01018_Plane3_3_of_3,data/raw/spain/Images/Patient01018_Plane3_3_of_3.png,1,Fetal brain,ES_01018,spain,Other,Other,Spain,train
+Patient01018_Plane5_1_of_1,data/raw/spain/Images/Patient01018_Plane5_1_of_1.png,2,Fetal femur,ES_01018,spain,Other,Other,Spain,train
+Patient01018_Plane6_1_of_1,data/raw/spain/Images/Patient01018_Plane6_1_of_1.png,3,Fetal thorax,ES_01018,spain,Other,Other,Spain,train
+Patient01025_Plane2_1_of_1,data/raw/spain/Images/Patient01025_Plane2_1_of_1.png,0,Fetal abdomen,ES_01025,spain,Voluson E6,Op. 1,Spain,train
+Patient01025_Plane3_1_of_3,data/raw/spain/Images/Patient01025_Plane3_1_of_3.png,1,Fetal brain,ES_01025,spain,Voluson E6,Op. 1,Spain,train
+Patient01025_Plane3_2_of_3,data/raw/spain/Images/Patient01025_Plane3_2_of_3.png,1,Fetal brain,ES_01025,spain,Voluson E6,Op. 1,Spain,train
+Patient01025_Plane3_3_of_3,data/raw/spain/Images/Patient01025_Plane3_3_of_3.png,1,Fetal brain,ES_01025,spain,Voluson E6,Op. 1,Spain,train
+Patient01025_Plane5_1_of_1,data/raw/spain/Images/Patient01025_Plane5_1_of_1.png,2,Fetal femur,ES_01025,spain,Voluson E6,Op. 1,Spain,train
+Patient01025_Plane6_1_of_1,data/raw/spain/Images/Patient01025_Plane6_1_of_1.png,3,Fetal thorax,ES_01025,spain,Voluson E6,Op. 1,Spain,train
+Patient01027_Plane2_1_of_1,data/raw/spain/Images/Patient01027_Plane2_1_of_1.png,0,Fetal abdomen,ES_01027,spain,Voluson E6,Op. 1,Spain,train
+Patient01027_Plane3_1_of_1,data/raw/spain/Images/Patient01027_Plane3_1_of_1.png,1,Fetal brain,ES_01027,spain,Voluson E6,Op. 1,Spain,train
+Patient01027_Plane5_1_of_1,data/raw/spain/Images/Patient01027_Plane5_1_of_1.png,2,Fetal femur,ES_01027,spain,Voluson E6,Op. 1,Spain,train
+Patient01027_Plane6_1_of_2,data/raw/spain/Images/Patient01027_Plane6_1_of_2.png,3,Fetal thorax,ES_01027,spain,Voluson E6,Op. 1,Spain,train
+Patient01027_Plane6_2_of_2,data/raw/spain/Images/Patient01027_Plane6_2_of_2.png,3,Fetal thorax,ES_01027,spain,Voluson E6,Op. 1,Spain,train
+Patient01032_Plane2_1_of_1,data/raw/spain/Images/Patient01032_Plane2_1_of_1.png,0,Fetal abdomen,ES_01032,spain,Aloka,Op. 3,Spain,train
+Patient01032_Plane3_1_of_3,data/raw/spain/Images/Patient01032_Plane3_1_of_3.png,1,Fetal brain,ES_01032,spain,Aloka,Op. 3,Spain,train
+Patient01032_Plane3_2_of_3,data/raw/spain/Images/Patient01032_Plane3_2_of_3.png,1,Fetal brain,ES_01032,spain,Aloka,Op. 3,Spain,train
+Patient01032_Plane3_3_of_3,data/raw/spain/Images/Patient01032_Plane3_3_of_3.png,1,Fetal brain,ES_01032,spain,Aloka,Op. 3,Spain,train
+Patient01032_Plane5_1_of_1,data/raw/spain/Images/Patient01032_Plane5_1_of_1.png,2,Fetal femur,ES_01032,spain,Aloka,Op. 3,Spain,train
+Patient01038_Plane2_1_of_1,data/raw/spain/Images/Patient01038_Plane2_1_of_1.png,0,Fetal abdomen,ES_01038,spain,Voluson E6,Op. 1,Spain,train
+Patient01038_Plane3_1_of_1,data/raw/spain/Images/Patient01038_Plane3_1_of_1.png,1,Fetal brain,ES_01038,spain,Voluson E6,Op. 1,Spain,train
+Patient01038_Plane6_1_of_1,data/raw/spain/Images/Patient01038_Plane6_1_of_1.png,3,Fetal thorax,ES_01038,spain,Voluson E6,Op. 1,Spain,train
+Patient01040_Plane3_1_of_2,data/raw/spain/Images/Patient01040_Plane3_1_of_2.png,1,Fetal brain,ES_01040,spain,Voluson E6,Op. 2,Spain,train
+Patient01040_Plane3_2_of_2,data/raw/spain/Images/Patient01040_Plane3_2_of_2.png,1,Fetal brain,ES_01040,spain,Voluson E6,Op. 2,Spain,train
+Patient01040_Plane6_1_of_4,data/raw/spain/Images/Patient01040_Plane6_1_of_4.png,3,Fetal thorax,ES_01040,spain,Voluson E6,Op. 2,Spain,train
+Patient01040_Plane6_2_of_4,data/raw/spain/Images/Patient01040_Plane6_2_of_4.png,3,Fetal thorax,ES_01040,spain,Voluson E6,Op. 2,Spain,train
+Patient01040_Plane6_3_of_4,data/raw/spain/Images/Patient01040_Plane6_3_of_4.png,3,Fetal thorax,ES_01040,spain,Voluson E6,Op. 2,Spain,train
+Patient01040_Plane6_4_of_4,data/raw/spain/Images/Patient01040_Plane6_4_of_4.png,3,Fetal thorax,ES_01040,spain,Voluson E6,Op. 2,Spain,train
+Patient01041_Plane3_1_of_1,data/raw/spain/Images/Patient01041_Plane3_1_of_1.png,1,Fetal brain,ES_01041,spain,Voluson E6,Op. 2,Spain,train
+Patient01041_Plane6_1_of_1,data/raw/spain/Images/Patient01041_Plane6_1_of_1.png,3,Fetal thorax,ES_01041,spain,Voluson E6,Op. 2,Spain,train
+Patient01049_Plane2_1_of_1,data/raw/spain/Images/Patient01049_Plane2_1_of_1.png,0,Fetal abdomen,ES_01049,spain,Aloka,Op. 3,Spain,train
+Patient01049_Plane3_1_of_2,data/raw/spain/Images/Patient01049_Plane3_1_of_2.png,1,Fetal brain,ES_01049,spain,Aloka,Op. 3,Spain,train
+Patient01049_Plane3_2_of_2,data/raw/spain/Images/Patient01049_Plane3_2_of_2.png,1,Fetal brain,ES_01049,spain,Aloka,Op. 3,Spain,train
+Patient01049_Plane5_1_of_1,data/raw/spain/Images/Patient01049_Plane5_1_of_1.png,2,Fetal femur,ES_01049,spain,Aloka,Op. 3,Spain,train
+Patient01050_Plane2_1_of_1,data/raw/spain/Images/Patient01050_Plane2_1_of_1.png,0,Fetal abdomen,ES_01050,spain,Aloka,Op. 3,Spain,train
+Patient01050_Plane3_1_of_2,data/raw/spain/Images/Patient01050_Plane3_1_of_2.png,1,Fetal brain,ES_01050,spain,Aloka,Op. 3,Spain,train
+Patient01050_Plane3_2_of_2,data/raw/spain/Images/Patient01050_Plane3_2_of_2.png,1,Fetal brain,ES_01050,spain,Aloka,Op. 3,Spain,train
+Patient01050_Plane5_1_of_2,data/raw/spain/Images/Patient01050_Plane5_1_of_2.png,2,Fetal femur,ES_01050,spain,Aloka,Op. 3,Spain,train
+Patient01050_Plane5_2_of_2,data/raw/spain/Images/Patient01050_Plane5_2_of_2.png,2,Fetal femur,ES_01050,spain,Aloka,Op. 3,Spain,train
+Patient01056_Plane2_1_of_1,data/raw/spain/Images/Patient01056_Plane2_1_of_1.png,0,Fetal abdomen,ES_01056,spain,Aloka,Op. 3,Spain,train
+Patient01056_Plane3_1_of_2,data/raw/spain/Images/Patient01056_Plane3_1_of_2.png,1,Fetal brain,ES_01056,spain,Aloka,Op. 3,Spain,train
+Patient01056_Plane3_2_of_2,data/raw/spain/Images/Patient01056_Plane3_2_of_2.png,1,Fetal brain,ES_01056,spain,Aloka,Op. 3,Spain,train
+Patient01056_Plane5_1_of_1,data/raw/spain/Images/Patient01056_Plane5_1_of_1.png,2,Fetal femur,ES_01056,spain,Aloka,Op. 3,Spain,train
+Patient01064_Plane3_1_of_2,data/raw/spain/Images/Patient01064_Plane3_1_of_2.png,1,Fetal brain,ES_01064,spain,Aloka,Op. 3,Spain,train
+Patient01064_Plane3_2_of_2,data/raw/spain/Images/Patient01064_Plane3_2_of_2.png,1,Fetal brain,ES_01064,spain,Aloka,Op. 3,Spain,train
+Patient01064_Plane5_1_of_1,data/raw/spain/Images/Patient01064_Plane5_1_of_1.png,2,Fetal femur,ES_01064,spain,Aloka,Op. 3,Spain,train
+Patient01069_Plane2_1_of_1,data/raw/spain/Images/Patient01069_Plane2_1_of_1.png,0,Fetal abdomen,ES_01069,spain,Voluson E6,Op. 2,Spain,train
+Patient01069_Plane3_1_of_3,data/raw/spain/Images/Patient01069_Plane3_1_of_3.png,1,Fetal brain,ES_01069,spain,Voluson E6,Op. 2,Spain,train
+Patient01069_Plane3_2_of_3,data/raw/spain/Images/Patient01069_Plane3_2_of_3.png,1,Fetal brain,ES_01069,spain,Voluson E6,Op. 2,Spain,train
+Patient01069_Plane3_3_of_3,data/raw/spain/Images/Patient01069_Plane3_3_of_3.png,1,Fetal brain,ES_01069,spain,Voluson E6,Op. 2,Spain,train
+Patient01069_Plane6_1_of_1,data/raw/spain/Images/Patient01069_Plane6_1_of_1.png,3,Fetal thorax,ES_01069,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane2_1_of_2,data/raw/spain/Images/Patient01071_Plane2_1_of_2.png,0,Fetal abdomen,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane2_2_of_2,data/raw/spain/Images/Patient01071_Plane2_2_of_2.png,0,Fetal abdomen,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane3_1_of_4,data/raw/spain/Images/Patient01071_Plane3_1_of_4.png,1,Fetal brain,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane3_2_of_4,data/raw/spain/Images/Patient01071_Plane3_2_of_4.png,1,Fetal brain,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane3_3_of_4,data/raw/spain/Images/Patient01071_Plane3_3_of_4.png,1,Fetal brain,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane3_4_of_4,data/raw/spain/Images/Patient01071_Plane3_4_of_4.png,1,Fetal brain,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane5_1_of_2,data/raw/spain/Images/Patient01071_Plane5_1_of_2.png,2,Fetal femur,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane5_2_of_2,data/raw/spain/Images/Patient01071_Plane5_2_of_2.png,2,Fetal femur,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane6_1_of_3,data/raw/spain/Images/Patient01071_Plane6_1_of_3.png,3,Fetal thorax,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane6_2_of_3,data/raw/spain/Images/Patient01071_Plane6_2_of_3.png,3,Fetal thorax,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01071_Plane6_3_of_3,data/raw/spain/Images/Patient01071_Plane6_3_of_3.png,3,Fetal thorax,ES_01071,spain,Voluson E6,Op. 2,Spain,train
+Patient01075_Plane3_1_of_4,data/raw/spain/Images/Patient01075_Plane3_1_of_4.png,1,Fetal brain,ES_01075,spain,Voluson E6,Op. 1,Spain,train
+Patient01075_Plane3_2_of_4,data/raw/spain/Images/Patient01075_Plane3_2_of_4.png,1,Fetal brain,ES_01075,spain,Voluson E6,Op. 1,Spain,train
+Patient01075_Plane3_3_of_4,data/raw/spain/Images/Patient01075_Plane3_3_of_4.png,1,Fetal brain,ES_01075,spain,Voluson E6,Op. 1,Spain,train
+Patient01075_Plane3_4_of_4,data/raw/spain/Images/Patient01075_Plane3_4_of_4.png,1,Fetal brain,ES_01075,spain,Voluson E6,Op. 1,Spain,train
+Patient01075_Plane5_1_of_1,data/raw/spain/Images/Patient01075_Plane5_1_of_1.png,2,Fetal femur,ES_01075,spain,Voluson E6,Op. 1,Spain,train
+Patient01075_Plane6_1_of_1,data/raw/spain/Images/Patient01075_Plane6_1_of_1.png,3,Fetal thorax,ES_01075,spain,Voluson E6,Op. 1,Spain,train
+Patient01080_Plane2_1_of_1,data/raw/spain/Images/Patient01080_Plane2_1_of_1.png,0,Fetal abdomen,ES_01080,spain,Aloka,Op. 3,Spain,train
+Patient01080_Plane3_1_of_3,data/raw/spain/Images/Patient01080_Plane3_1_of_3.png,1,Fetal brain,ES_01080,spain,Aloka,Op. 3,Spain,train
+Patient01080_Plane3_2_of_3,data/raw/spain/Images/Patient01080_Plane3_2_of_3.png,1,Fetal brain,ES_01080,spain,Aloka,Op. 3,Spain,train
+Patient01080_Plane3_3_of_3,data/raw/spain/Images/Patient01080_Plane3_3_of_3.png,1,Fetal brain,ES_01080,spain,Aloka,Op. 3,Spain,train
+Patient01080_Plane5_1_of_2,data/raw/spain/Images/Patient01080_Plane5_1_of_2.png,2,Fetal femur,ES_01080,spain,Aloka,Op. 3,Spain,train
+Patient01080_Plane5_2_of_2,data/raw/spain/Images/Patient01080_Plane5_2_of_2.png,2,Fetal femur,ES_01080,spain,Aloka,Op. 3,Spain,train
+Patient01080_Plane6_1_of_1,data/raw/spain/Images/Patient01080_Plane6_1_of_1.png,3,Fetal thorax,ES_01080,spain,Aloka,Op. 3,Spain,train
+Patient01093_Plane3_1_of_3,data/raw/spain/Images/Patient01093_Plane3_1_of_3.png,1,Fetal brain,ES_01093,spain,Aloka,Op. 3,Spain,train
+Patient01093_Plane3_2_of_3,data/raw/spain/Images/Patient01093_Plane3_2_of_3.png,1,Fetal brain,ES_01093,spain,Aloka,Op. 3,Spain,train
+Patient01093_Plane3_3_of_3,data/raw/spain/Images/Patient01093_Plane3_3_of_3.png,1,Fetal brain,ES_01093,spain,Aloka,Op. 3,Spain,train
+Patient01093_Plane5_1_of_1,data/raw/spain/Images/Patient01093_Plane5_1_of_1.png,2,Fetal femur,ES_01093,spain,Aloka,Op. 3,Spain,train
+Patient01101_Plane2_1_of_1,data/raw/spain/Images/Patient01101_Plane2_1_of_1.png,0,Fetal abdomen,ES_01101,spain,Voluson E6,Op. 1,Spain,train
+Patient01101_Plane3_1_of_3,data/raw/spain/Images/Patient01101_Plane3_1_of_3.png,1,Fetal brain,ES_01101,spain,Voluson E6,Op. 1,Spain,train
+Patient01101_Plane3_2_of_3,data/raw/spain/Images/Patient01101_Plane3_2_of_3.png,1,Fetal brain,ES_01101,spain,Voluson E6,Op. 1,Spain,train
+Patient01101_Plane3_3_of_3,data/raw/spain/Images/Patient01101_Plane3_3_of_3.png,1,Fetal brain,ES_01101,spain,Voluson E6,Op. 1,Spain,train
+Patient01101_Plane6_1_of_1,data/raw/spain/Images/Patient01101_Plane6_1_of_1.png,3,Fetal thorax,ES_01101,spain,Voluson E6,Op. 1,Spain,train
+Patient01104_Plane3_1_of_2,data/raw/spain/Images/Patient01104_Plane3_1_of_2.png,1,Fetal brain,ES_01104,spain,Voluson E6,Op. 2,Spain,train
+Patient01104_Plane3_2_of_2,data/raw/spain/Images/Patient01104_Plane3_2_of_2.png,1,Fetal brain,ES_01104,spain,Voluson E6,Op. 2,Spain,train
+Patient01105_Plane2_1_of_1,data/raw/spain/Images/Patient01105_Plane2_1_of_1.png,0,Fetal abdomen,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane3_1_of_5,data/raw/spain/Images/Patient01105_Plane3_1_of_5.png,1,Fetal brain,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane3_2_of_5,data/raw/spain/Images/Patient01105_Plane3_2_of_5.png,1,Fetal brain,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane3_3_of_5,data/raw/spain/Images/Patient01105_Plane3_3_of_5.png,1,Fetal brain,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane3_4_of_5,data/raw/spain/Images/Patient01105_Plane3_4_of_5.png,1,Fetal brain,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane3_5_of_5,data/raw/spain/Images/Patient01105_Plane3_5_of_5.png,1,Fetal brain,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane5_1_of_2,data/raw/spain/Images/Patient01105_Plane5_1_of_2.png,2,Fetal femur,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane5_2_of_2,data/raw/spain/Images/Patient01105_Plane5_2_of_2.png,2,Fetal femur,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01105_Plane6_1_of_1,data/raw/spain/Images/Patient01105_Plane6_1_of_1.png,3,Fetal thorax,ES_01105,spain,Voluson E6,Op. 1,Spain,train
+Patient01108_Plane3_1_of_1,data/raw/spain/Images/Patient01108_Plane3_1_of_1.png,1,Fetal brain,ES_01108,spain,Voluson E6,Op. 2,Spain,train
+Patient01108_Plane5_1_of_1,data/raw/spain/Images/Patient01108_Plane5_1_of_1.png,2,Fetal femur,ES_01108,spain,Voluson E6,Op. 2,Spain,train
+Patient01109_Plane3_1_of_1,data/raw/spain/Images/Patient01109_Plane3_1_of_1.png,1,Fetal brain,ES_01109,spain,Voluson E6,Op. 2,Spain,train
+Patient01119_Plane3_1_of_2,data/raw/spain/Images/Patient01119_Plane3_1_of_2.png,1,Fetal brain,ES_01119,spain,Voluson E6,Op. 2,Spain,train
+Patient01119_Plane3_2_of_2,data/raw/spain/Images/Patient01119_Plane3_2_of_2.png,1,Fetal brain,ES_01119,spain,Voluson E6,Op. 2,Spain,train
+Patient01120_Plane2_1_of_1,data/raw/spain/Images/Patient01120_Plane2_1_of_1.png,0,Fetal abdomen,ES_01120,spain,Voluson E6,Op. 1,Spain,train
+Patient01120_Plane3_1_of_3,data/raw/spain/Images/Patient01120_Plane3_1_of_3.png,1,Fetal brain,ES_01120,spain,Voluson E6,Op. 1,Spain,train
+Patient01120_Plane3_2_of_3,data/raw/spain/Images/Patient01120_Plane3_2_of_3.png,1,Fetal brain,ES_01120,spain,Voluson E6,Op. 1,Spain,train
+Patient01120_Plane3_3_of_3,data/raw/spain/Images/Patient01120_Plane3_3_of_3.png,1,Fetal brain,ES_01120,spain,Voluson E6,Op. 1,Spain,train
+Patient01120_Plane5_1_of_1,data/raw/spain/Images/Patient01120_Plane5_1_of_1.png,2,Fetal femur,ES_01120,spain,Voluson E6,Op. 1,Spain,train
+Patient01120_Plane6_1_of_1,data/raw/spain/Images/Patient01120_Plane6_1_of_1.png,3,Fetal thorax,ES_01120,spain,Voluson E6,Op. 1,Spain,train
+Patient01124_Plane2_1_of_1,data/raw/spain/Images/Patient01124_Plane2_1_of_1.png,0,Fetal abdomen,ES_01124,spain,Voluson E6,Op. 1,Spain,train
+Patient01124_Plane3_1_of_4,data/raw/spain/Images/Patient01124_Plane3_1_of_4.png,1,Fetal brain,ES_01124,spain,Voluson E6,Op. 1,Spain,train
+Patient01124_Plane3_2_of_4,data/raw/spain/Images/Patient01124_Plane3_2_of_4.png,1,Fetal brain,ES_01124,spain,Voluson E6,Op. 1,Spain,train
+Patient01124_Plane3_3_of_4,data/raw/spain/Images/Patient01124_Plane3_3_of_4.png,1,Fetal brain,ES_01124,spain,Voluson E6,Op. 1,Spain,train
+Patient01124_Plane3_4_of_4,data/raw/spain/Images/Patient01124_Plane3_4_of_4.png,1,Fetal brain,ES_01124,spain,Voluson E6,Op. 1,Spain,train
+Patient01124_Plane5_1_of_1,data/raw/spain/Images/Patient01124_Plane5_1_of_1.png,2,Fetal femur,ES_01124,spain,Voluson E6,Op. 1,Spain,train
+Patient01124_Plane6_1_of_1,data/raw/spain/Images/Patient01124_Plane6_1_of_1.png,3,Fetal thorax,ES_01124,spain,Voluson E6,Op. 1,Spain,train
+Patient01128_Plane2_1_of_1,data/raw/spain/Images/Patient01128_Plane2_1_of_1.png,0,Fetal abdomen,ES_01128,spain,Aloka,Op. 3,Spain,train
+Patient01128_Plane3_1_of_3,data/raw/spain/Images/Patient01128_Plane3_1_of_3.png,1,Fetal brain,ES_01128,spain,Aloka,Op. 3,Spain,train
+Patient01128_Plane3_2_of_3,data/raw/spain/Images/Patient01128_Plane3_2_of_3.png,1,Fetal brain,ES_01128,spain,Aloka,Op. 3,Spain,train
+Patient01128_Plane3_3_of_3,data/raw/spain/Images/Patient01128_Plane3_3_of_3.png,1,Fetal brain,ES_01128,spain,Aloka,Op. 3,Spain,train
+Patient01128_Plane5_1_of_1,data/raw/spain/Images/Patient01128_Plane5_1_of_1.png,2,Fetal femur,ES_01128,spain,Aloka,Op. 3,Spain,train
+Patient01128_Plane6_1_of_1,data/raw/spain/Images/Patient01128_Plane6_1_of_1.png,3,Fetal thorax,ES_01128,spain,Aloka,Op. 3,Spain,train
+Patient01143_Plane3_1_of_2,data/raw/spain/Images/Patient01143_Plane3_1_of_2.png,1,Fetal brain,ES_01143,spain,Voluson E6,Op. 2,Spain,train
+Patient01143_Plane3_2_of_2,data/raw/spain/Images/Patient01143_Plane3_2_of_2.png,1,Fetal brain,ES_01143,spain,Voluson E6,Op. 2,Spain,train
+Patient01151_Plane2_1_of_2,data/raw/spain/Images/Patient01151_Plane2_1_of_2.png,0,Fetal abdomen,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane2_2_of_2,data/raw/spain/Images/Patient01151_Plane2_2_of_2.png,0,Fetal abdomen,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_1_of_13,data/raw/spain/Images/Patient01151_Plane3_1_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_2_of_13,data/raw/spain/Images/Patient01151_Plane3_2_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_3_of_13,data/raw/spain/Images/Patient01151_Plane3_3_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_4_of_13,data/raw/spain/Images/Patient01151_Plane3_4_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_5_of_13,data/raw/spain/Images/Patient01151_Plane3_5_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_6_of_13,data/raw/spain/Images/Patient01151_Plane3_6_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_7_of_13,data/raw/spain/Images/Patient01151_Plane3_7_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_8_of_13,data/raw/spain/Images/Patient01151_Plane3_8_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_9_of_13,data/raw/spain/Images/Patient01151_Plane3_9_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_10_of_13,data/raw/spain/Images/Patient01151_Plane3_10_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_11_of_13,data/raw/spain/Images/Patient01151_Plane3_11_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_12_of_13,data/raw/spain/Images/Patient01151_Plane3_12_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane3_13_of_13,data/raw/spain/Images/Patient01151_Plane3_13_of_13.png,1,Fetal brain,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane5_1_of_4,data/raw/spain/Images/Patient01151_Plane5_1_of_4.png,2,Fetal femur,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane5_2_of_4,data/raw/spain/Images/Patient01151_Plane5_2_of_4.png,2,Fetal femur,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane5_3_of_4,data/raw/spain/Images/Patient01151_Plane5_3_of_4.png,2,Fetal femur,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane5_4_of_4,data/raw/spain/Images/Patient01151_Plane5_4_of_4.png,2,Fetal femur,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane6_1_of_3,data/raw/spain/Images/Patient01151_Plane6_1_of_3.png,3,Fetal thorax,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane6_2_of_3,data/raw/spain/Images/Patient01151_Plane6_2_of_3.png,3,Fetal thorax,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01151_Plane6_3_of_3,data/raw/spain/Images/Patient01151_Plane6_3_of_3.png,3,Fetal thorax,ES_01151,spain,Voluson E6,Other,Spain,train
+Patient01152_Plane3_1_of_3,data/raw/spain/Images/Patient01152_Plane3_1_of_3.png,1,Fetal brain,ES_01152,spain,Voluson E6,Op. 2,Spain,train
+Patient01152_Plane3_2_of_3,data/raw/spain/Images/Patient01152_Plane3_2_of_3.png,1,Fetal brain,ES_01152,spain,Voluson E6,Op. 2,Spain,train
+Patient01152_Plane3_3_of_3,data/raw/spain/Images/Patient01152_Plane3_3_of_3.png,1,Fetal brain,ES_01152,spain,Voluson E6,Op. 2,Spain,train
+Patient01158_Plane2_1_of_1,data/raw/spain/Images/Patient01158_Plane2_1_of_1.png,0,Fetal abdomen,ES_01158,spain,Voluson E6,Op. 1,Spain,train
+Patient01158_Plane3_1_of_5,data/raw/spain/Images/Patient01158_Plane3_1_of_5.png,1,Fetal brain,ES_01158,spain,Voluson E6,Op. 2,Spain,train
+Patient01158_Plane3_2_of_5,data/raw/spain/Images/Patient01158_Plane3_2_of_5.png,1,Fetal brain,ES_01158,spain,Voluson E6,Op. 2,Spain,train
+Patient01158_Plane3_3_of_5,data/raw/spain/Images/Patient01158_Plane3_3_of_5.png,1,Fetal brain,ES_01158,spain,Voluson E6,Op. 2,Spain,train
+Patient01158_Plane3_4_of_5,data/raw/spain/Images/Patient01158_Plane3_4_of_5.png,1,Fetal brain,ES_01158,spain,Voluson E6,Op. 2,Spain,train
+Patient01158_Plane3_5_of_5,data/raw/spain/Images/Patient01158_Plane3_5_of_5.png,1,Fetal brain,ES_01158,spain,Voluson E6,Op. 2,Spain,train
+Patient01158_Plane6_1_of_1,data/raw/spain/Images/Patient01158_Plane6_1_of_1.png,3,Fetal thorax,ES_01158,spain,Voluson E6,Op. 1,Spain,train
+Patient01166_Plane2_1_of_1,data/raw/spain/Images/Patient01166_Plane2_1_of_1.png,0,Fetal abdomen,ES_01166,spain,Aloka,Op. 3,Spain,train
+Patient01166_Plane3_1_of_4,data/raw/spain/Images/Patient01166_Plane3_1_of_4.png,1,Fetal brain,ES_01166,spain,Aloka,Op. 3,Spain,train
+Patient01166_Plane3_2_of_4,data/raw/spain/Images/Patient01166_Plane3_2_of_4.png,1,Fetal brain,ES_01166,spain,Aloka,Op. 3,Spain,train
+Patient01166_Plane3_3_of_4,data/raw/spain/Images/Patient01166_Plane3_3_of_4.png,1,Fetal brain,ES_01166,spain,Aloka,Op. 3,Spain,train
+Patient01166_Plane3_4_of_4,data/raw/spain/Images/Patient01166_Plane3_4_of_4.png,1,Fetal brain,ES_01166,spain,Aloka,Op. 3,Spain,train
+Patient01166_Plane5_1_of_1,data/raw/spain/Images/Patient01166_Plane5_1_of_1.png,2,Fetal femur,ES_01166,spain,Aloka,Op. 3,Spain,train
+Patient01166_Plane6_1_of_1,data/raw/spain/Images/Patient01166_Plane6_1_of_1.png,3,Fetal thorax,ES_01166,spain,Aloka,Op. 3,Spain,train
+Patient01168_Plane3_1_of_2,data/raw/spain/Images/Patient01168_Plane3_1_of_2.png,1,Fetal brain,ES_01168,spain,Aloka,Op. 3,Spain,train
+Patient01168_Plane3_2_of_2,data/raw/spain/Images/Patient01168_Plane3_2_of_2.png,1,Fetal brain,ES_01168,spain,Aloka,Op. 3,Spain,train
+Patient01168_Plane5_1_of_1,data/raw/spain/Images/Patient01168_Plane5_1_of_1.png,2,Fetal femur,ES_01168,spain,Aloka,Op. 3,Spain,train
+Patient01168_Plane6_1_of_1,data/raw/spain/Images/Patient01168_Plane6_1_of_1.png,3,Fetal thorax,ES_01168,spain,Aloka,Op. 3,Spain,train
+Patient01172_Plane2_1_of_1,data/raw/spain/Images/Patient01172_Plane2_1_of_1.png,0,Fetal abdomen,ES_01172,spain,Aloka,Op. 3,Spain,train
+Patient01172_Plane3_1_of_3,data/raw/spain/Images/Patient01172_Plane3_1_of_3.png,1,Fetal brain,ES_01172,spain,Aloka,Op. 3,Spain,train
+Patient01172_Plane3_2_of_3,data/raw/spain/Images/Patient01172_Plane3_2_of_3.png,1,Fetal brain,ES_01172,spain,Aloka,Op. 3,Spain,train
+Patient01172_Plane3_3_of_3,data/raw/spain/Images/Patient01172_Plane3_3_of_3.png,1,Fetal brain,ES_01172,spain,Aloka,Op. 3,Spain,train
+Patient01188_Plane3_1_of_2,data/raw/spain/Images/Patient01188_Plane3_1_of_2.png,1,Fetal brain,ES_01188,spain,Aloka,Op. 3,Spain,train
+Patient01188_Plane3_2_of_2,data/raw/spain/Images/Patient01188_Plane3_2_of_2.png,1,Fetal brain,ES_01188,spain,Aloka,Op. 3,Spain,train
+Patient01188_Plane5_1_of_1,data/raw/spain/Images/Patient01188_Plane5_1_of_1.png,2,Fetal femur,ES_01188,spain,Aloka,Op. 3,Spain,train
+Patient01210_Plane2_1_of_1,data/raw/spain/Images/Patient01210_Plane2_1_of_1.png,0,Fetal abdomen,ES_01210,spain,Voluson E6,Op. 1,Spain,train
+Patient01210_Plane3_1_of_3,data/raw/spain/Images/Patient01210_Plane3_1_of_3.png,1,Fetal brain,ES_01210,spain,Voluson E6,Op. 1,Spain,train
+Patient01210_Plane3_2_of_3,data/raw/spain/Images/Patient01210_Plane3_2_of_3.png,1,Fetal brain,ES_01210,spain,Voluson E6,Op. 1,Spain,train
+Patient01210_Plane3_3_of_3,data/raw/spain/Images/Patient01210_Plane3_3_of_3.png,1,Fetal brain,ES_01210,spain,Voluson E6,Op. 1,Spain,train
+Patient01210_Plane5_1_of_1,data/raw/spain/Images/Patient01210_Plane5_1_of_1.png,2,Fetal femur,ES_01210,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane3_1_of_4,data/raw/spain/Images/Patient01212_Plane3_1_of_4.png,1,Fetal brain,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane3_2_of_4,data/raw/spain/Images/Patient01212_Plane3_2_of_4.png,1,Fetal brain,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane3_3_of_4,data/raw/spain/Images/Patient01212_Plane3_3_of_4.png,1,Fetal brain,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane3_4_of_4,data/raw/spain/Images/Patient01212_Plane3_4_of_4.png,1,Fetal brain,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane5_1_of_4,data/raw/spain/Images/Patient01212_Plane5_1_of_4.png,2,Fetal femur,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane5_2_of_4,data/raw/spain/Images/Patient01212_Plane5_2_of_4.png,2,Fetal femur,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane5_3_of_4,data/raw/spain/Images/Patient01212_Plane5_3_of_4.png,2,Fetal femur,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01212_Plane5_4_of_4,data/raw/spain/Images/Patient01212_Plane5_4_of_4.png,2,Fetal femur,ES_01212,spain,Voluson E6,Op. 1,Spain,train
+Patient01218_Plane2_1_of_1,data/raw/spain/Images/Patient01218_Plane2_1_of_1.png,0,Fetal abdomen,ES_01218,spain,Aloka,Op. 3,Spain,train
+Patient01218_Plane3_1_of_2,data/raw/spain/Images/Patient01218_Plane3_1_of_2.png,1,Fetal brain,ES_01218,spain,Aloka,Op. 3,Spain,train
+Patient01218_Plane3_2_of_2,data/raw/spain/Images/Patient01218_Plane3_2_of_2.png,1,Fetal brain,ES_01218,spain,Aloka,Op. 3,Spain,train
+Patient01218_Plane5_1_of_1,data/raw/spain/Images/Patient01218_Plane5_1_of_1.png,2,Fetal femur,ES_01218,spain,Aloka,Op. 3,Spain,train
+Patient01220_Plane2_1_of_1,data/raw/spain/Images/Patient01220_Plane2_1_of_1.png,0,Fetal abdomen,ES_01220,spain,Aloka,Op. 3,Spain,train
+Patient01220_Plane3_1_of_2,data/raw/spain/Images/Patient01220_Plane3_1_of_2.png,1,Fetal brain,ES_01220,spain,Aloka,Op. 3,Spain,train
+Patient01220_Plane3_2_of_2,data/raw/spain/Images/Patient01220_Plane3_2_of_2.png,1,Fetal brain,ES_01220,spain,Aloka,Op. 3,Spain,train
+Patient01220_Plane5_1_of_1,data/raw/spain/Images/Patient01220_Plane5_1_of_1.png,2,Fetal femur,ES_01220,spain,Aloka,Op. 3,Spain,train
+Patient01223_Plane2_1_of_1,data/raw/spain/Images/Patient01223_Plane2_1_of_1.png,0,Fetal abdomen,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01223_Plane3_1_of_4,data/raw/spain/Images/Patient01223_Plane3_1_of_4.png,1,Fetal brain,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01223_Plane3_2_of_4,data/raw/spain/Images/Patient01223_Plane3_2_of_4.png,1,Fetal brain,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01223_Plane3_3_of_4,data/raw/spain/Images/Patient01223_Plane3_3_of_4.png,1,Fetal brain,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01223_Plane3_4_of_4,data/raw/spain/Images/Patient01223_Plane3_4_of_4.png,1,Fetal brain,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01223_Plane5_1_of_2,data/raw/spain/Images/Patient01223_Plane5_1_of_2.png,2,Fetal femur,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01223_Plane5_2_of_2,data/raw/spain/Images/Patient01223_Plane5_2_of_2.png,2,Fetal femur,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01223_Plane6_1_of_1,data/raw/spain/Images/Patient01223_Plane6_1_of_1.png,3,Fetal thorax,ES_01223,spain,Voluson E6,Op. 1,Spain,train
+Patient01224_Plane2_1_of_1,data/raw/spain/Images/Patient01224_Plane2_1_of_1.png,0,Fetal abdomen,ES_01224,spain,Voluson E6,Op. 2,Spain,train
+Patient01224_Plane3_1_of_4,data/raw/spain/Images/Patient01224_Plane3_1_of_4.png,1,Fetal brain,ES_01224,spain,Voluson E6,Op. 2,Spain,train
+Patient01224_Plane3_2_of_4,data/raw/spain/Images/Patient01224_Plane3_2_of_4.png,1,Fetal brain,ES_01224,spain,Voluson E6,Op. 2,Spain,train
+Patient01224_Plane3_3_of_4,data/raw/spain/Images/Patient01224_Plane3_3_of_4.png,1,Fetal brain,ES_01224,spain,Voluson E6,Op. 2,Spain,train
+Patient01224_Plane3_4_of_4,data/raw/spain/Images/Patient01224_Plane3_4_of_4.png,1,Fetal brain,ES_01224,spain,Voluson E6,Op. 2,Spain,train
+Patient01224_Plane5_1_of_1,data/raw/spain/Images/Patient01224_Plane5_1_of_1.png,2,Fetal femur,ES_01224,spain,Voluson E6,Op. 2,Spain,train
+Patient01224_Plane6_1_of_1,data/raw/spain/Images/Patient01224_Plane6_1_of_1.png,3,Fetal thorax,ES_01224,spain,Voluson E6,Op. 2,Spain,train
