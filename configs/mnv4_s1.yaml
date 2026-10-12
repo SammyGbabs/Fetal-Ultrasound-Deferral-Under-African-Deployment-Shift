@@ -1,0 +1,12 @@
+# T4b priority-2 run. Recipe values are identical across runs; only model and seed change.
+run_id: mnv4_s1
+model: mnv4
+seed: 1
+dropout: 0.2
+lr: 0.0001
+weight_decay: 0.0001
+batch_size: 64
+epochs: 30
+patience: 5
+image_size: 224
+num_workers: 2

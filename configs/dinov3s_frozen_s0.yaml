@@ -1,0 +1,13 @@
+# T4b priority-2 run. Linear head on a frozen backbone, so the learning rate is higher.
+run_id: dinov3s_frozen_s0
+model: dinov3s
+seed: 0
+freeze_backbone: true
+dropout: 0.2
+lr: 0.001
+weight_decay: 0.0001
+batch_size: 64
+epochs: 30
+patience: 5
+image_size: 224
+num_workers: 2
