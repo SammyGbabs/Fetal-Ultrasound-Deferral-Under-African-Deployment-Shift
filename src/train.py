@@ -38,10 +38,10 @@ from torch import nn
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from src.data import make_loader  # noqa: E402
-from src.models import BACKBONES, build_model, normalization  # noqa: E402
+from src.models import BACKBONES, build_model, load_state, normalization, saved_state  # noqa: E402
 from src.paths import DRIVE_ROOT, LOCAL_ROOT  # noqa: E402
 
-DEFAULTS = {"freeze_backbone": False, "dropout": 0.2, "lr": 1e-4, "weight_decay": 1e-4, "batch_size": 64,
+DEFAULTS = {"freeze_backbone": False, "grad_checkpointing": False, "dropout": 0.2, "lr": 1e-4, "weight_decay": 1e-4, "batch_size": 64,
             "epochs": 30, "patience": 5, "image_size": 224, "num_workers": 2}
 LOG_COLUMNS = ["epoch", "train_loss", "val_loss", "val_balanced_acc", "lr"]
 NUM_CLASSES = 4
@@ -145,6 +145,9 @@ def train(config_file: Path, smoke: bool = False, force: bool = False) -> None:
     val_loader = make_loader("spain_val", train=False, **loader_args)
     model = build_model(cfg["model"], NUM_CLASSES, cfg["dropout"],
                         freeze_backbone=cfg["freeze_backbone"]).to(device)
+    if cfg["grad_checkpointing"]:
+        # Recomputes activations in the backward pass, so a large ViT fits a T4 at batch 64
+        model.backbone.set_grad_checkpointing(True)
     # Plain cross-entropy, no class weights: weighting distorts calibration
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad],
@@ -155,7 +158,7 @@ def train(config_file: Path, smoke: bool = False, force: bool = False) -> None:
     last = work_dir / "last.pt"
     if last.exists() and not (force or smoke):
         checkpoint = torch.load(last, map_location=device)
-        model.load_state_dict(checkpoint["model"])
+        load_state(model, checkpoint["model"])
         optimizer.load_state_dict(checkpoint["optimizer"])
         scaler.load_state_dict(checkpoint["scaler"])
         state = checkpoint["state"]
@@ -184,11 +187,11 @@ def train(config_file: Path, smoke: bool = False, force: bool = False) -> None:
         state["seconds"] += time.time() - start
         if val_bacc > state["best_val_balanced_acc"]:
             state["best_epoch"], state["best_val_balanced_acc"] = epoch, val_bacc
-            atomic_save({"model": model.state_dict(), "epoch": epoch, "config": cfg}, work_dir / "best.pt")
+            atomic_save({"model": saved_state(model), "epoch": epoch, "config": cfg}, work_dir / "best.pt")
         with open(work_dir / "train_log.csv", "a", newline="") as f:
             csv.writer(f).writerow([epoch, f"{train_loss:.5f}", f"{val_loss:.5f}",
                                     f"{val_bacc:.5f}", optimizer.param_groups[0]["lr"]])
-        atomic_save({"model": model.state_dict(), "optimizer": optimizer.state_dict(),
+        atomic_save({"model": saved_state(model), "optimizer": optimizer.state_dict(),
                      "scaler": scaler.state_dict(), "state": state}, last)
         print(f"  epoch {epoch:2d} | train loss {train_loss:.4f} | val loss {val_loss:.4f} "
               f"| val balanced acc {val_bacc:.4f}" + ("  *" if state["best_epoch"] == epoch else ""))

@@ -24,7 +24,7 @@ import torch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from src.data import make_loader  # noqa: E402
-from src.models import build_model, normalization  # noqa: E402
+from src.models import build_model, load_state, normalization  # noqa: E402
 from src.paths import DRIVE_ROOT  # noqa: E402
 from src.train import NUM_CLASSES, balanced_accuracy, git_commit, seed_everything  # noqa: E402
 
@@ -34,9 +34,11 @@ MC_PASSES = 20
 def load_run(run_id: str, device) -> tuple[torch.nn.Module, dict]:
     checkpoint = torch.load(DRIVE_ROOT / "runs" / run_id / "best.pt", map_location=device)
     cfg = checkpoint["config"]
-    model = build_model(cfg["model"], NUM_CLASSES, cfg["dropout"], pretrained=False,
-                        freeze_backbone=cfg.get("freeze_backbone", False))
-    model.load_state_dict(checkpoint["model"])
+    frozen = cfg.get("freeze_backbone", False)
+    # A frozen run's checkpoint holds only the head, so its backbone comes from the pretrained weights
+    model = build_model(cfg["model"], NUM_CLASSES, cfg["dropout"], pretrained=frozen,
+                        freeze_backbone=frozen)
+    load_state(model, checkpoint["model"])
     return model.to(device).eval(), cfg
 
 
