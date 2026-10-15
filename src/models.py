@@ -1,6 +1,8 @@
 """Plane classifiers shared by training (T4) and inference (T5).
 
-Every model is a pretrained timm backbone with its own classifier removed, followed by one dropout layer and a 4-class linear head. The pooled
+Every model is a pretrained image encoder with its own classifier removed,
+followed by one dropout layer and a 4-class linear head. All encoders come
+from timm except FetalCLIP, which is loaded through open_clip. The pooled
 backbone output is the "penultimate feature" of contract D. Dropout is an
 explicit nn.Dropout placed only before the head, so MC dropout works the same
 way in every architecture and never depends on a backbone's built-in dropout.
@@ -18,22 +20,49 @@ BACKBONES = {
     "mnv4": "mobilenetv4_conv_medium.e500_r224_in1k",
     "convnext": "convnext_tiny.fb_in1k",
     "vits16": "vit_small_patch16_224.augreg_in1k",
-    # Priority 2, foundation model (self-supervised, LVD-1689M)
-    "dinov3s": "vit_small_patch16_dinov3.lvd1689m",
+    # Priority 2, foundation models
+    "dinov3s": "vit_small_patch16_dinov3.lvd1689m",        # self-supervised, LVD-1689M
+    "fetalclip": "numansaeed/fetalclip-model",             # fetal ultrasound CLIP, ViT-L/14
+}
+
+# FetalCLIP is not in timm. Its release is an open_clip checkpoint (CC BY-NC 4.0) plus
+# this config, copied from FetalCLIP_config.json in github.com/BioMedIA-MBZUAI/FetalCLIP.
+# Only the image encoder is used; its 768-d image embedding is the feature.
+FETALCLIP_WEIGHTS = ("numansaeed/fetalclip-model", "FetalCLIP_weights.pt")
+FETALCLIP_CONFIG = {
+    "embed_dim": 768,
+    "vision_cfg": {"image_size": 224, "layers": 24, "width": 1024, "patch_size": 14},
+    "text_cfg": {"context_length": 117, "vocab_size": 49408, "width": 768, "heads": 12, "layers": 12},
 }
 
 
 def normalization(model: str) -> tuple[tuple, tuple]:
     """Mean and std the pretrained weights expect; not every model uses the ImageNet values."""
+    if model == "fetalclip":
+        from open_clip import OPENAI_DATASET_MEAN, OPENAI_DATASET_STD
+        return tuple(OPENAI_DATASET_MEAN), tuple(OPENAI_DATASET_STD)
     cfg = timm.get_pretrained_cfg(BACKBONES[model])
     return tuple(cfg.mean), tuple(cfg.std)
+
+
+def fetalclip_encoder(pretrained: bool) -> nn.Module:
+    import open_clip
+    from huggingface_hub import hf_hub_download
+    open_clip.factory._MODEL_CONFIGS["FetalCLIP"] = FETALCLIP_CONFIG
+    weights = hf_hub_download(*FETALCLIP_WEIGHTS) if pretrained else None
+    encoder = open_clip.create_model("FetalCLIP", pretrained=weights).visual
+    encoder.head_hidden_size = FETALCLIP_CONFIG["embed_dim"]
+    return encoder
 
 
 class PlaneClassifier(nn.Module):
     def __init__(self, model: str, num_classes: int = 4, dropout: float = 0.2,
                  pretrained: bool = True, freeze_backbone: bool = False):
         super().__init__()
-        self.backbone = timm.create_model(BACKBONES[model], pretrained=pretrained, num_classes=0)
+        if model == "fetalclip":
+            self.backbone = fetalclip_encoder(pretrained)
+        else:
+            self.backbone = timm.create_model(BACKBONES[model], pretrained=pretrained, num_classes=0)
         self.dropout = nn.Dropout(dropout)
         # head_hidden_size is the width of the pooled output (differs from num_features in MobileNetV4)
         self.head = nn.Linear(self.backbone.head_hidden_size, num_classes)
@@ -73,6 +102,24 @@ class PlaneClassifier(nn.Module):
             [self.head(nn.functional.dropout(features, self.dropout.p, training=True))
              for _ in range(mc_passes)], dim=1)
         return {"logits": logits, "features": features, "mc_logits": mc_logits}
+
+
+def saved_state(model: PlaneClassifier) -> dict:
+    """Weights to checkpoint. A frozen backbone never changes, so only the head is saved
+    and the backbone is rebuilt from its pretrained weights when loading."""
+    state = model.state_dict()
+    if model.freeze_backbone:
+        state = {k: v for k, v in state.items() if not k.startswith("backbone.")}
+    return state
+
+
+def load_state(model: PlaneClassifier, state: dict) -> None:
+    """Inverse of saved_state. Also loads full checkpoints of frozen runs."""
+    missing, unexpected = model.load_state_dict(state, strict=False)
+    if unexpected or (missing and not model.freeze_backbone) \
+            or any(not k.startswith("backbone.") for k in missing):
+        raise RuntimeError(f"Checkpoint does not match the model: missing {missing[:5]}, "
+                           f"unexpected {unexpected[:5]}")
 
 
 def build_model(model: str, num_classes: int = 4, dropout: float = 0.2,

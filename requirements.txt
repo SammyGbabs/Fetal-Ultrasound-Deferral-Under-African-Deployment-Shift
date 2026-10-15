@@ -2,6 +2,7 @@
 # After the first successful Colab session, replace these lines with the exact
 # versions from `pip freeze` so both accounts run identical code.
 timm>=1.0.20
+open_clip_torch>=2.24
 pandas>=2.0
 scikit-learn>=1.3
 pyyaml>=6.0
