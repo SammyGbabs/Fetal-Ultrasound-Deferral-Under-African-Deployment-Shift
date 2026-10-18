@@ -103,3 +103,21 @@ file's hash as listed by the Hub.
 | fetalclip | numansaeed/fetalclip-model | 2c02ad7b3eea314a328c5ebe5b81be4ef3a4d5db | FetalCLIP_weights.pt | 2025-05-01 | 90916caa408baf9374ee3f8c1533463331a4ace37a13e61385e782905b35c310 |
 
 FetalCLIP's weights are CC BY-NC 4.0.
+
+## Reproducibility check
+
+On 18 Oct we reran inference for seed 0 of each of the 9 model variants on `spain_val`
+with `scripts/check_reproducibility.py`, using the current code (pinned weights included)
+and the library versions now pinned in `requirements.txt`: torch 2.11.0+cu130 (Colab's),
+timm 1.0.30, open_clip_torch 3.3.0. Each run was rechecked on the GPU type it was trained
+on: the five ImageNet models on a Tesla T4, DINOv3 and FetalCLIP on an RTX PRO 6000
+Blackwell.
+
+All 9 matched the saved `.npz` files exactly: largest difference 0 for logits, features
+and MC-dropout logits, and the same prediction on all 555 images. That includes runs
+saved at `cd4ed34`, `4f2e970`, `fcda2a3` and `b5fd958`, and both frozen runs, whose
+backbone is rebuilt from the pinned pretrained weights at inference.
+
+Reruns on a different GPU type than the original may not be bit-identical: newer GPUs use
+lower-precision TF32 maths for some operations by default and the T4 does not.
+
