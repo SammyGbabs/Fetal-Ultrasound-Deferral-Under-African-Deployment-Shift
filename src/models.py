@@ -25,6 +25,20 @@ BACKBONES = {
     "fetalclip": "numansaeed/fetalclip-model",             # fetal ultrasound CLIP, ViT-L/14
 }
 
+# Hugging Face commit each set of weights is loaded from. Pinned so that reruns, and frozen
+# runs (whose backbone is rebuilt from these weights at inference), load exactly the weights
+# our runs used. Every repo was last updated on the Hub before training started on
+# 11 Oct 2026, so these are the revisions all 45 runs downloaded.
+WEIGHT_REVISIONS = {
+    "effb0": "1b5383e5f79cc0f7fc067e372f8f26a5fa73f26a",
+    "rn50": "78f3ecfdb38e06d9b8397f662e7ab8fee96026fa",
+    "mnv4": "02a09fbfb82b289e871ba8255f9da58c056fb13b",
+    "convnext": "b43a6303c9fcf176d2d707478a128c2c91e93528",
+    "vits16": "d01bbafd7491e7caeb940a9ceda55eb8f0f99f53",
+    "dinov3s": "3bf4720a82ec2066db88137180ff1f83a675cef0",
+    "fetalclip": "2c02ad7b3eea314a328c5ebe5b81be4ef3a4d5db",
+}
+
 # FetalCLIP is not in timm. Its release is an open_clip checkpoint (CC BY-NC 4.0) plus
 # this config, copied from FetalCLIP_config.json in github.com/BioMedIA-MBZUAI/FetalCLIP.
 # Only the image encoder is used; its 768-d image embedding is the feature.
@@ -49,7 +63,8 @@ def fetalclip_encoder(pretrained: bool) -> nn.Module:
     import open_clip
     from huggingface_hub import hf_hub_download
     open_clip.factory._MODEL_CONFIGS["FetalCLIP"] = FETALCLIP_CONFIG
-    weights = hf_hub_download(*FETALCLIP_WEIGHTS) if pretrained else None
+    weights = (hf_hub_download(*FETALCLIP_WEIGHTS, revision=WEIGHT_REVISIONS["fetalclip"])
+               if pretrained else None)
     encoder = open_clip.create_model("FetalCLIP", pretrained=weights).visual
     encoder.head_hidden_size = FETALCLIP_CONFIG["embed_dim"]
     return encoder
@@ -62,7 +77,10 @@ class PlaneClassifier(nn.Module):
         if model == "fetalclip":
             self.backbone = fetalclip_encoder(pretrained)
         else:
-            self.backbone = timm.create_model(BACKBONES[model], pretrained=pretrained, num_classes=0)
+            # timm reads a pinned revision from "<repo>@<commit>"
+            hub_id = f"timm/{BACKBONES[model]}@{WEIGHT_REVISIONS[model]}"
+            self.backbone = timm.create_model(BACKBONES[model], pretrained=pretrained, num_classes=0,
+                                              pretrained_cfg_overlay={"hf_hub_id": hub_id})
         self.dropout = nn.Dropout(dropout)
         # head_hidden_size is the width of the pooled output (differs from num_features in MobileNetV4)
         self.head = nn.Linear(self.backbone.head_hidden_size, num_classes)

@@ -38,7 +38,7 @@ from torch import nn
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from src.data import make_loader  # noqa: E402
-from src.models import BACKBONES, build_model, load_state, normalization, saved_state  # noqa: E402
+from src.models import BACKBONES, WEIGHT_REVISIONS, build_model, load_state, normalization, saved_state  # noqa: E402
 from src.paths import DRIVE_ROOT, LOCAL_ROOT  # noqa: E402
 
 DEFAULTS = {"freeze_backbone": False, "grad_checkpointing": False, "dropout": 0.2, "lr": 1e-4, "weight_decay": 1e-4, "batch_size": 64,
@@ -198,6 +198,7 @@ def train(config_file: Path, smoke: bool = False, force: bool = False) -> None:
 
     meta = {
         "run_id": run_id, "model": cfg["model"], "weights": BACKBONES[cfg["model"]],
+        "weights_revision": WEIGHT_REVISIONS[cfg["model"]],
         "freeze_backbone": cfg["freeze_backbone"], "seed": seed,
         "best_epoch": state["best_epoch"],
         "best_val_balanced_acc": round(state["best_val_balanced_acc"], 5),
