@@ -1,0 +1,14 @@
+# T4b priority-2 run. Linear head on a frozen backbone: higher learning rate, and up to 100 epochs
+# with patience 10, since at 30 epochs the head was still improving when training stopped.
+run_id: dinov3s_frozen_s4
+model: dinov3s
+seed: 4
+freeze_backbone: true
+dropout: 0.2
+lr: 0.001
+weight_decay: 0.0001
+batch_size: 64
+epochs: 100
+patience: 10
+image_size: 224
+num_workers: 2
