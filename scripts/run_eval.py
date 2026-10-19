@@ -1,11 +1,13 @@
 """T6: compute per-run metrics for every run, condition, uncertainty score and calibration.
 
-Writes eval/per_run_metrics.csv (one row per run x condition x score x calib)
-and eval/temperatures.csv. Confidence intervals, subgroups and seed
-aggregation are T7.
+Saves each model variant's results to eval/per_variant/ as soon as it finishes,
+so a disconnected session can resume: rerun the same command and finished
+variants are skipped. At the end, combines everything into
+eval/per_run_metrics.csv and eval/temperatures.csv.
 
     !python scripts/run_eval.py                    # real outputs from Drive
-    !python scripts/run_eval.py --outputs /path    # e.g. fake outputs for testing
+    !python scripts/run_eval.py --outputs /path    # e.g. a local copy or fake outputs
+    !python scripts/run_eval.py --redo             # recompute every variant
 """
 import argparse
 import sys
@@ -20,18 +22,25 @@ from src.paths import DRIVE_ROOT  # noqa: E402
 parser = argparse.ArgumentParser()
 parser.add_argument("--outputs", default=str(DRIVE_ROOT / "outputs"))
 parser.add_argument("--eval-dir", default=str(DRIVE_ROOT / "eval"))
+parser.add_argument("--redo", action="store_true", help="ignore saved progress")
 args = parser.parse_args()
 outputs_root, eval_dir = Path(args.outputs), Path(args.eval_dir)
-eval_dir.mkdir(parents=True, exist_ok=True)
+progress_dir = eval_dir / "per_variant"
+progress_dir.mkdir(parents=True, exist_ok=True)
 
 manifest = io.load_manifest(outputs_root)
 test_conditions = [c for c in io.load_conditions().condition_id
                    if c not in ("spain_train", "spain_val")]
-rows, temps = [], []
 
 for variant, vman in manifest.groupby("variant"):
+    metrics_file = progress_dir / f"{variant}_metrics.csv"
+    temps_file = progress_dir / f"{variant}_temperatures.csv"
+    if metrics_file.exists() and temps_file.exists() and not args.redo:
+        print(f"skip {variant} (already done)")
+        continue
+
     run_ids = sorted(vman.run_id.unique())
-    fits, cache = {}, {}
+    fits, cache, rows, temps = {}, {}, [], []
     for run_id in run_ids:                                   # fit on Spanish data only
         val = io.load_output(outputs_root, run_id, "spain_val")
         train = io.load_output(outputs_root, run_id, "spain_train")
@@ -45,8 +54,8 @@ for variant, vman in manifest.groupby("variant"):
                 for r in run_ids}
         ens_logits = [outs[r]["logits"] for r in run_ids] if len(run_ids) > 1 else None
         for run_id in run_ids:
-            res = pipeline.per_image(outs[run_id], fits[run_id], ens_logits, ens_temps)
-            cache[(run_id, condition, "res")] = res
+            cache[(run_id, condition, "res")] = pipeline.per_image(
+                outs[run_id], fits[run_id], ens_logits, ens_temps)
     for run_id in run_ids:
         val_res = cache[(run_id, "spain_val", "res")]
         ref_res = cache[(run_id, "spain_test", "res")]
@@ -56,8 +65,17 @@ for variant, vman in manifest.groupby("variant"):
                                         ref_res=None if condition == "spain_test" else ref_res):
                 rows.append({"run_id": run_id, "variant": variant,
                              "seed": int(run_id.rsplit("_s", 1)[1]), "condition": condition, **r})
-    print(f"ok  {variant}: {len(run_ids)} runs")
 
-pd.DataFrame(rows).to_csv(eval_dir / "per_run_metrics.csv", index=False)
-pd.DataFrame(temps).to_csv(eval_dir / "temperatures.csv", index=False)
-print(f"\nWrote {len(rows)} rows to {eval_dir / 'per_run_metrics.csv'}")
+    # write to temporary names first, so a disconnect mid-write never leaves a half file
+    pd.DataFrame(rows).to_csv(metrics_file.with_suffix(".tmp"), index=False)
+    pd.DataFrame(temps).to_csv(temps_file.with_suffix(".tmp"), index=False)
+    metrics_file.with_suffix(".tmp").rename(metrics_file)
+    temps_file.with_suffix(".tmp").rename(temps_file)
+    print(f"ok  {variant}: {len(run_ids)} runs saved")
+
+variants = sorted(manifest.variant.unique())
+metrics = pd.concat([pd.read_csv(progress_dir / f"{v}_metrics.csv") for v in variants])
+temperatures = pd.concat([pd.read_csv(progress_dir / f"{v}_temperatures.csv") for v in variants])
+metrics.to_csv(eval_dir / "per_run_metrics.csv", index=False)
+temperatures.to_csv(eval_dir / "temperatures.csv", index=False)
+print(f"\nWrote {len(metrics)} rows to {eval_dir / 'per_run_metrics.csv'}")
