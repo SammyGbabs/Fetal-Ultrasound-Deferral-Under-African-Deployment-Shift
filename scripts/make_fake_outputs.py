@@ -56,6 +56,9 @@ def main(out_root: Path) -> None:
                 split = io.load_split(c.split_file)
                 out = fake(split, c.condition_id, dim, rng)
                 np.savez(out_root / run_id / f"{c.condition_id}.npz", **out)
+                pd.DataFrame({"image_id": out["image_id"], "y_true": out["y_true"],
+                              "y_pred": out["logits"].argmax(1)}).to_csv(
+                    out_root / run_id / f"{c.condition_id}_preds.csv", index=False)
                 rows.append({"run_id": run_id, "model": variant, "seed": seed,
                              "condition_id": c.condition_id,
                              "path": f"outputs/{run_id}/{c.condition_id}.npz",

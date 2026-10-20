@@ -90,3 +90,29 @@ def test_end_to_end_on_fake_outputs(tmp_path):
     assert spain > africa > africa_q10                        # the fake shifts are detected
     maha = df[(df.score == "mahalanobis") & (df.condition == "africa_test")].ood_auroc.mean()
     assert maha > 0.9                                         # fake African features are shifted
+
+
+def test_t7_matches_t6_on_fake_outputs(tmp_path):
+    """T7's point estimates must equal T6's seed-averaged values exactly."""
+    fake, ev = tmp_path / "outputs", tmp_path / "eval"
+    subprocess.run([sys.executable, ROOT / "scripts/make_fake_outputs.py", fake], check=True)
+    subprocess.run([sys.executable, ROOT / "scripts/run_eval.py",
+                    "--outputs", fake, "--eval-dir", ev], check=True)
+    subprocess.run([sys.executable, ROOT / "scripts/run_t7.py",
+                    "--outputs", fake, "--eval-dir", ev, "--B", "20"], check=True)
+    t6 = pd.read_csv(ev / "per_run_metrics.csv")
+    t7 = pd.read_csv(ev / "results_main.csv")
+    for method, score in (("msp", "msp"), ("ensemble", "ens_entropy")):
+        for calib in ("raw", "ts"):
+            for cond in ("spain_test", "africa_test", "africa_test_q10"):
+                a = t6[(t6.score == score) & (t6.calib == calib) & (t6.condition == cond)]
+                a = a.groupby("variant").mean(numeric_only=True)
+                for metric in ("balanced_accuracy", "ece", "silent_failure", "acc_at_80",
+                               "deployed_coverage_80", "errors_passed_80"):
+                    b = t7[(t7.method == method) & (t7.calib == calib) &
+                           (t7.group == f"{cond}_all") & (t7.metric == metric)]
+                    b = b.set_index("variant").estimate
+                    assert np.allclose(a[metric], b, atol=1e-6), (method, calib, cond, metric)
+    # every finite estimate has a finite, ordered interval
+    ok = t7[np.isfinite(t7.estimate)]
+    assert np.isfinite(ok.ci_low).all() and (ok.ci_low <= ok.ci_high).all()
