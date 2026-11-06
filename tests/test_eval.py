@@ -1,14 +1,16 @@
-"""Checks for the T6 evaluation code. Run:  python -m pytest tests/ -q"""
+"""Checks for the T6/T7 evaluation code. Run:  python -m pytest tests/ -q"""
 import subprocess
 import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.special import softmax
+from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from src.eval import calibration, deferral, metrics, scores  # noqa: E402
+from src.eval import calibration, deferral, io, metrics, scores  # noqa: E402
 
 rng = np.random.default_rng(0)
 
@@ -73,6 +75,47 @@ def test_mc_mutual_information_nonnegative_and_zero_without_disagreement():
     assert (mi >= -1e-9).all()
 
 
+# ---- numerical-stability fix -------------------------------------------------
+
+def test_log_scores_keep_the_same_ranking_as_plain_scores():
+    """log(1 - max p) and log(entropy) must order images exactly like 1 - max p and entropy."""
+    z = rng.normal(0, 2, (5000, 4))
+    p = softmax(z, axis=1)
+    assert spearmanr(scores.msp(z)[1], 1 - p.max(1)).statistic > 0.999999
+    assert spearmanr(scores.predictive_entropy(z)[1], scores.entropy(p)).statistic > 0.999999
+    _, u_ens, _ = scores.ensemble([z, z + rng.normal(0, 0.5, z.shape)])
+    p_ens = (p + softmax(z + 0, axis=1)) / 2
+    assert np.isfinite(u_ens).all()
+
+
+def test_scores_have_no_rounding_ties_at_extreme_temperature():
+    """At T = 0.05, plain 1 - max p collapses to 0 for most images; the log form must not."""
+    margins = np.linspace(2, 30, 500)                         # all different confidences
+    z = np.zeros((500, 4))
+    z[:, 0] = margins
+    old = 1 - softmax(z / 0.05, axis=1).max(1)                # the previous formula
+    new = scores.msp(z, T=0.05)[1]
+    assert (old == 0).sum() > 100                             # the bug: hundreds of exact ties
+    assert len(np.unique(new)) == 500                         # fixed: every image distinct
+    assert (np.diff(new) < 0).all()                           # bigger margin = less uncertain
+    new_h = scores.predictive_entropy(z, T=0.05)[1]
+    assert len(np.unique(new_h)) == 500 and (np.diff(new_h) < 0).all()
+    _, ens_u, _ = scores.ensemble([z, z], temps=[0.05, 0.05])
+    assert len(np.unique(ens_u)) == 500
+
+
+def test_outputs_load_in_double_precision(tmp_path):
+    out = {"image_id": np.array(["a", "b"]), "y_true": np.array([0, 1]),
+           "logits": np.zeros((2, 4), np.float32), "features": np.zeros((2, 3), np.float32),
+           "mc_logits": np.zeros((2, 20, 4), np.float32)}
+    (tmp_path / "run_s0").mkdir()
+    np.savez(tmp_path / "run_s0" / "cond.npz", **out)
+    loaded = io.load_output(tmp_path, "run_s0", "cond")
+    assert all(loaded[k].dtype == np.float64 for k in ("logits", "features", "mc_logits"))
+
+
+# ---- end to end --------------------------------------------------------------
+
 def test_end_to_end_on_fake_outputs(tmp_path):
     fake = tmp_path / "outputs"
     subprocess.run([sys.executable, ROOT / "scripts/make_fake_outputs.py", fake], check=True)
@@ -116,3 +159,45 @@ def test_t7_matches_t6_on_fake_outputs(tmp_path):
     # every finite estimate has a finite, ordered interval
     ok = t7[np.isfinite(t7.estimate)]
     assert np.isfinite(ok.ci_low).all() and (ok.ci_low <= ok.ci_high).all()
+
+
+def test_t6_and_t7_agree_at_extreme_temperature(tmp_path):
+    """The original bug: with near-certain models, T6 and T7 disagreed on deferral.
+
+    Fake outputs with very confident logits push the fitted temperature to its
+    lower bound; T6 (via pipeline) and T7 must still give identical deferral numbers.
+    """
+    fake, ev = tmp_path / "outputs", tmp_path / "eval"
+    subprocess.run([sys.executable, ROOT / "scripts/make_fake_outputs.py", fake], check=True)
+    for run_dir in fake.iterdir():                            # make every model near-certain
+        if not run_dir.is_dir():
+            continue
+        for f in run_dir.glob("*.npz"):
+            with np.load(f, allow_pickle=True) as z:
+                d = {k: z[k] for k in z.files}
+            y = d["y_true"]
+            logits = np.full((len(y), 4), -10.0, np.float32)
+            logits[np.arange(len(y)), y] = 10.0 + rng.random(len(y)).astype(np.float32)
+            wrong = rng.random(len(y)) < (0.08 if "africa" in f.name else 0.0)
+            logits[wrong] = logits[wrong][:, ::-1]               # a few confident errors in Africa
+            d["logits"] = logits
+            d["mc_logits"] = np.repeat(logits[:, None, :], 20, axis=1)
+            np.savez(f, **d)
+    subprocess.run([sys.executable, ROOT / "scripts/run_eval.py",
+                    "--outputs", fake, "--eval-dir", ev], check=True)
+    subprocess.run([sys.executable, ROOT / "scripts/run_t7.py",
+                    "--outputs", fake, "--eval-dir", ev, "--B", "5"], check=True)
+    temps = pd.read_csv(ev / "temperatures.csv").set_index("run_id").temperature
+    assert (temps < 0.5).all()                                # strong sharpening, as for EfficientNet-B0
+    # confirm the old formula would have produced rounding ties on this data
+    with np.load(fake / "fakecnn_s0" / "africa_test.npz", allow_pickle=True) as z:
+        old = 1 - softmax(z["logits"].astype(np.float64) / temps["fakecnn_s0"], axis=1).max(1)
+    assert (old == 0).mean() > 0.5
+    t6 = pd.read_csv(ev / "per_run_metrics.csv")
+    t7 = pd.read_csv(ev / "results_main.csv")
+    a = t6[(t6.score == "msp") & (t6.calib == "ts") & (t6.condition == "africa_test")]
+    a = a.groupby("variant").mean(numeric_only=True)
+    for metric in ("deployed_coverage_80", "errors_passed_80"):
+        b = t7[(t7.method == "msp") & (t7.calib == "ts") & (t7.group == "africa_test_all") &
+               (t7.metric == metric)].set_index("variant").estimate
+        assert np.allclose(a[metric], b, atol=1e-9), metric

@@ -4,6 +4,9 @@ Every run has one .npz per test condition with arrays:
     image_id (N,)  y_true (N,)  logits (N, 4)  features (N, D)  mc_logits (N, 20, 4)
 Row order matches the condition's split CSV. Patient, country and machine are
 joined from the split files by image_id.
+
+All floating-point arrays are converted to double precision (float64) on
+load, so every script computes with the same precision.
 """
 from pathlib import Path
 
@@ -39,7 +42,11 @@ def load_split(split_file: str) -> pd.DataFrame:
 def load_output(outputs_root: Path, run_id: str, condition_id: str) -> dict:
     # allow_pickle: image_id may be saved as an object array; these are our own files
     with np.load(outputs_root / run_id / f"{condition_id}.npz", allow_pickle=True) as z:
-        return {k: z[k] for k in z.files}
+        out = {k: z[k] for k in z.files}
+    for k in ("logits", "features", "mc_logits"):
+        if k in out:
+            out[k] = out[k].astype(np.float64)
+    return out
 
 
 def check_output(out: dict, split: pd.DataFrame) -> list[str]:

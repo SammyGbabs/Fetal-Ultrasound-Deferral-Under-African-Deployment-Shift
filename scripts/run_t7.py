@@ -7,6 +7,9 @@ per country) and African test at JPEG q10. Every interval comes from 2,000
 resamples of patients. The difference "temperature-scaled minus raw" gets its
 own interval, from the same resamples.
 
+Uncertainty scores come from src/eval/scores.py (log-space, double precision),
+so T6 and T7 rank images identically even at extreme temperatures.
+
 Resumable like run_eval.py: each variant is saved to eval/t7_per_variant/ when
 done, and finished variants are skipped on rerun. Writes (contract E):
     eval/results_main.csv      one row per variant x method x calib x group x metric
@@ -23,8 +26,7 @@ import pandas as pd
 from scipy.special import softmax
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.eval import bootstrap, calibration, io  # noqa: E402
-from src.eval.scores import entropy  # noqa: E402
+from src.eval import bootstrap, calibration, io, scores  # noqa: E402
 from src.paths import DRIVE_ROOT  # noqa: E402
 
 parser = argparse.ArgumentParser()
@@ -87,13 +89,16 @@ for variant, vman in manifest.groupby("variant"):
         """(pred, confidence, uncertainty) for each method x calib x seed."""
         out = {}
         for calib in ("raw", "ts"):
-            probs = {r: softmax(logits_by_run[r] / (T[r] if calib == "ts" else 1.0), axis=1)
-                     for r in run_ids}
+            temp = {r: (T[r] if calib == "ts" else 1.0) for r in run_ids}
             for r in run_ids:
-                p = probs[r]
-                out[("msp", calib, r)] = (p.argmax(1), p.max(1), 1 - p.max(1))
-            mean = np.mean([probs[r] for r in run_ids], axis=0)
-            out[("ensemble", calib, "ens")] = (mean.argmax(1), mean.max(1), entropy(mean))
+                pred, u = scores.msp(logits_by_run[r], temp[r])
+                conf = softmax(logits_by_run[r] / temp[r], axis=1).max(1)
+                out[("msp", calib, r)] = (pred, conf, u)
+            ens_logits = [logits_by_run[r] for r in run_ids]
+            temps = [temp[r] for r in run_ids]
+            pred, u, _ = scores.ensemble(ens_logits, temps)
+            mean = np.mean([softmax(l / t, axis=1) for l, t in zip(ens_logits, temps)], axis=0)
+            out[("ensemble", calib, "ens")] = (pred, mean.max(1), u)
         return out
 
     val_pred = predictions({r: val[r][0] for r in run_ids})
