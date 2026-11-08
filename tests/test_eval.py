@@ -124,8 +124,9 @@ def test_end_to_end_on_fake_outputs(tmp_path):
     subprocess.run([sys.executable, ROOT / "scripts/run_eval.py",
                     "--outputs", fake, "--eval-dir", eval_dir], check=True)
     df = pd.read_csv(eval_dir / "per_run_metrics.csv")
-    # 2 variants x 5 seeds x 16 test conditions x 8 scores x 2 calibrations
-    assert len(df) == 2 * 5 * 16 * 8 * 2
+    # 2 variants x 5 seeds x every test condition x 8 scores x 2 calibrations
+    n_test = len(io.load_conditions()) - 2                    # all but spain_train and spain_val
+    assert len(df) == 2 * 5 * n_test * 8 * 2
     clean = df[(df.score == "msp") & (df.calib == "raw")]
     spain = clean[clean.condition == "spain_test"].accuracy.mean()
     africa = clean[clean.condition == "africa_test"].accuracy.mean()
