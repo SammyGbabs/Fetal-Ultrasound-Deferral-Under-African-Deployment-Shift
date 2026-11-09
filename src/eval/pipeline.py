@@ -116,3 +116,11 @@ def summarize(res: dict, idx: np.ndarray | None = None, val_res: dict | None = N
                 row["ood_auroc"] = metrics.ood_auroc(ref_res[(score, calib)], u)
             rows.append(row)
     return rows
+
+
+def subset_res(res: dict, idx: np.ndarray) -> dict:
+    """Restrict per_image results to rows idx (e.g. validation without leaked images)."""
+    out = {}
+    for k, v in res.items():
+        out[k] = (v[0][idx], v[1][idx]) if isinstance(v, tuple) else v[idx]
+    return out

@@ -124,8 +124,8 @@ def test_end_to_end_on_fake_outputs(tmp_path):
     subprocess.run([sys.executable, ROOT / "scripts/run_eval.py",
                     "--outputs", fake, "--eval-dir", eval_dir], check=True)
     df = pd.read_csv(eval_dir / "per_run_metrics.csv")
-    # 2 variants x 5 seeds x every test condition x 8 scores x 2 calibrations
-    n_test = len(io.load_conditions()) - 2                    # all but spain_train and spain_val
+    # 2 variants x 5 seeds x test conditions x 8 scores x 2 calibrations
+    n_test = sum(not io.is_validation(c) for c in io.load_conditions().condition_id)
     assert len(df) == 2 * 5 * n_test * 8 * 2
     clean = df[(df.score == "msp") & (df.calib == "raw")]
     spain = clean[clean.condition == "spain_test"].accuracy.mean()
@@ -188,7 +188,8 @@ def test_t6_and_t7_agree_at_extreme_temperature(tmp_path):
                     "--outputs", fake, "--eval-dir", ev], check=True)
     subprocess.run([sys.executable, ROOT / "scripts/run_t7.py",
                     "--outputs", fake, "--eval-dir", ev, "--B", "5"], check=True)
-    temps = pd.read_csv(ev / "temperatures.csv").set_index("run_id").temperature
+    temps = pd.read_csv(ev / "temperatures.csv")
+    temps = temps[temps.val_condition == "spain_val"].set_index("run_id").temperature
     assert (temps < 0.5).all()                                # strong sharpening, as for EfficientNet-B0
     # confirm the old formula would have produced rounding ties on this data
     with np.load(fake / "fakecnn_s0" / "africa_test.npz", allow_pickle=True) as z:
@@ -202,3 +203,80 @@ def test_t6_and_t7_agree_at_extreme_temperature(tmp_path):
         b = t7[(t7.method == "msp") & (t7.calib == "ts") & (t7.group == "africa_test_all") &
                (t7.metric == metric)].set_index("variant").estimate
         assert np.allclose(a[metric], b, atol=1e-9), metric
+
+
+# ---- duplicates, leaked validation images, masked thresholds ----------------
+
+def test_evaluation_rows_drops_copies_and_merges_patients():
+    split = pd.DataFrame({"image_id": ["a1", "a2", "b1", "b2", "c1"],
+                          "patient_id": ["A", "A", "B", "B", "C"]})
+    dup = pd.DataFrame({"image_id": ["b1", "c1"], "split": ["africa_test", "africa_test"],
+                        "duplicate_of": ["a1", "b2"], "match_type": ["exact", "near"],
+                        "merge_into_patient_id": ["A", "B"]})
+    keep, patients = io.evaluation_rows("africa_test.csv", split, dup)
+    assert list(keep) == [0, 1, 3]                            # copies b1 and c1 dropped
+    assert list(patients) == ["A", "A", "A", "A", "A"]        # B joins A; C joins B, hence A
+    keep, patients = io.evaluation_rows("spain_test.csv", split, dup)
+    assert list(keep) == [0, 1, 2, 3, 4]                      # other splits untouched
+    assert list(io.evaluation_rows("africa_test.csv", split, None)[0]) == [0, 1, 2, 3, 4]
+
+
+def _fake_duplicates(path: Path, n_africa=20, n_val=5):
+    """Mark some African images and some validation images as copies."""
+    africa = io.load_split("africa_test.csv")
+    val, train = io.load_split("spain_val.csv"), io.load_split("spain_train.csv")
+    first = africa.groupby("patient_id", sort=False).head(1)  # one image per patient
+    rows = []
+    for i in range(n_africa):                                 # patient 2i+1's image copies patient 2i's
+        copy, orig = first.iloc[2 * i + 1], first.iloc[2 * i]
+        rows.append({"image_id": copy.image_id, "split": "africa_test",
+                     "duplicate_of": orig.image_id, "match_type": "exact",
+                     "merge_into_patient_id": orig.patient_id})
+    for i in range(n_val):                                    # leaked validation images
+        rows.append({"image_id": val.image_id[i], "split": "spain_val",
+                     "duplicate_of": train.image_id[i], "match_type": "exact",
+                     "merge_into_patient_id": train.patient_id[i]})
+    pd.DataFrame(rows).to_csv(path, index=False)
+
+
+def test_deduplication_end_to_end(tmp_path):
+    fake, ev, dup = tmp_path / "outputs", tmp_path / "eval", tmp_path / "duplicates.csv"
+    subprocess.run([sys.executable, ROOT / "scripts/make_fake_outputs.py", fake], check=True)
+    _fake_duplicates(dup, n_africa=20, n_val=5)
+    for script, extra in (("run_eval.py", []), ("run_t7.py", ["--B", "5"])):
+        subprocess.run([sys.executable, ROOT / "scripts" / script, "--outputs", fake,
+                        "--eval-dir", ev, "--duplicates", dup, *extra], check=True)
+        subprocess.run([sys.executable, ROOT / "scripts" / script, "--outputs", fake,
+                        "--eval-dir", ev, "--no-dedup", *extra], check=True)
+    n_africa = len(io.load_split("africa_test.csv"))
+
+    t6 = pd.read_csv(ev / "per_run_metrics.csv")
+    assert (t6[t6.condition.str.startswith("africa_test")].n == n_africa - 20).all()
+    assert (t6[t6.condition == "spain_test"].n == len(io.load_split("spain_test.csv"))).all()
+    masked = t6[t6.condition.str.endswith("_masked")]
+    assert (masked.val_condition == "spain_val_masked").all()  # masked thresholds from masked validation
+    assert (t6[~t6.condition.str.endswith("_masked")].val_condition == "spain_val").all()
+    temps = pd.read_csv(ev / "temperatures.csv")
+    assert (temps.n_val_images == len(io.load_split("spain_val.csv")) - 5).all()
+
+    t7 = pd.read_csv(ev / "results_main.csv")
+    a = t7[t7.group == "africa_test_all"]
+    assert (a.n_images == n_africa - 20).all()
+    assert (a.n_patients < io.load_split("africa_test.csv").patient_id.nunique()).all()
+    free = t7[t7.group == "africa_test_caliper_free"].n_images.iloc[0]
+    africa = io.load_split("africa_test.csv")
+    assert free <= (~africa.country.isin(["Ghana", "Uganda"])).sum()
+
+    # T6 and T7 still agree after deduplication
+    for metric in ("balanced_accuracy", "deployed_coverage_80", "errors_passed_80"):
+        x = t6[(t6.score == "msp") & (t6.calib == "raw") & (t6.condition == "africa_test")]
+        x = x.groupby("variant")[metric].mean()
+        y = t7[(t7.method == "msp") & (t7.calib == "raw") & (t7.group == "africa_test_all") &
+               (t7.metric == metric)].set_index("variant").estimate
+        assert np.allclose(x, y, atol=1e-9), metric
+
+    # --no-dedup keeps all images and writes elsewhere
+    t6_all = pd.read_csv(ev / "no_dedup" / "per_run_metrics.csv")
+    assert (t6_all[t6_all.condition == "africa_test"].n == n_africa).all()
+    t7_all = pd.read_csv(ev / "no_dedup" / "results_main.csv")
+    assert (t7_all[t7_all.group == "africa_test_all"].n_images == n_africa).all()

@@ -10,6 +10,14 @@ own interval, from the same resamples.
 Uncertainty scores come from src/eval/scores.py (log-space, double precision),
 so T6 and T7 rank images identically even at extreme temperatures.
 
+Rows and patients follow src/eval/io.py `evaluation_rows`, exactly as in T6:
+duplicate copies from splits/duplicates.csv are dropped, patients that share
+images are merged before resampling, and leaked validation images are removed
+before temperatures and thresholds are fitted. --no-dedup evaluates all images
+and writes to eval/no_dedup/. The African test set is also reported without
+Ghana and Uganda ("africa_test_caliper_free"), whose images carry measurement
+calipers.
+
 Resumable like run_eval.py: each variant is saved to eval/t7_per_variant/ when
 done, and finished variants are skipped on rerun. Writes (contract E):
     eval/results_main.csv      one row per variant x method x calib x group x metric
@@ -33,9 +41,13 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--outputs", default=str(DRIVE_ROOT / "outputs"))
 parser.add_argument("--eval-dir", default=str(DRIVE_ROOT / "eval"))
 parser.add_argument("--B", type=int, default=2000, help="bootstrap resamples")
+parser.add_argument("--duplicates", default=str(io.DUPLICATES_FILE))
+parser.add_argument("--no-dedup", action="store_true", help="evaluate all images")
 parser.add_argument("--redo", action="store_true")
 args = parser.parse_args()
 outputs_root, eval_dir = Path(args.outputs), Path(args.eval_dir)
+if args.no_dedup:
+    eval_dir = eval_dir / "no_dedup"
 progress_dir = eval_dir / "t7_per_variant"
 progress_dir.mkdir(parents=True, exist_ok=True)
 
@@ -51,15 +63,21 @@ def logits_only(run_id, condition):
         return z["logits"].astype(np.float64), z["y_true"].astype(int)
 
 
-def groups_for(condition: str, split: pd.DataFrame) -> dict:
-    """Row subsets reported for each condition."""
-    g = {f"{condition}_all": np.arange(len(split))}
+CALIPER_COUNTRIES = {"Ghana", "Uganda"}        # calipers inside the fan on (nearly) all images
+
+
+def groups_for(condition: str, split: pd.DataFrame, keep: np.ndarray) -> dict:
+    """Row subsets reported for each condition, restricted to the evaluated rows."""
+    kept = np.zeros(len(split), bool)
+    kept[keep] = True
+    g = {f"{condition}_all": np.flatnonzero(kept)}
     if condition == "spain_test":
-        g["spain_test_familiar"] = np.flatnonzero(split.machine.isin(["Voluson E6", "Aloka"]))
-        g["spain_test_s10"] = np.flatnonzero(split.machine == "Voluson S10")
+        g["spain_test_familiar"] = np.flatnonzero(kept & split.machine.isin(["Voluson E6", "Aloka"]))
+        g["spain_test_s10"] = np.flatnonzero(kept & (split.machine == "Voluson S10"))
     if condition == "africa_test":
         for country in sorted(split.country.unique()):
-            g[f"africa_test_{country.lower()}"] = np.flatnonzero(split.country == country)
+            g[f"africa_test_{country.lower()}"] = np.flatnonzero(kept & (split.country == country))
+        g["africa_test_caliper_free"] = np.flatnonzero(kept & ~split.country.isin(CALIPER_COUNTRIES))
     return g
 
 
@@ -70,6 +88,10 @@ def summarise(values: np.ndarray) -> tuple:
 
 manifest = io.load_manifest(outputs_root)
 conditions = io.load_conditions().set_index("condition_id")
+duplicates = None if args.no_dedup else io.load_duplicates(args.duplicates)
+rows_and_patients = {f: io.evaluation_rows(f, io.load_split(f), duplicates)
+                     for f in conditions["split_file"].unique()}
+val_keep = rows_and_patients[conditions.loc["spain_val", "split_file"]][0]
 
 for variant, vman in manifest.groupby("variant"):
     res_file = progress_dir / f"{variant}_results.csv"
@@ -82,7 +104,8 @@ for variant, vman in manifest.groupby("variant"):
     # Temperatures and thresholds: Spanish validation only (same fit as T6)
     T, val = {}, {}
     for r in run_ids:
-        val[r] = logits_only(r, "spain_val")
+        logits, y_val = logits_only(r, "spain_val")
+        val[r] = (logits[val_keep], y_val[val_keep])        # leaked images removed
         T[r] = calibration.fit_temperature(*val[r])
 
     def predictions(logits_by_run):
@@ -110,9 +133,9 @@ for variant, vman in manifest.groupby("variant"):
         loaded = {r: logits_only(r, condition) for r in run_ids}
         y = loaded[run_ids[0]][1]
         preds = predictions({r: loaded[r][0] for r in run_ids})
-        patients = split.patient_id.to_numpy()
+        keep_rows, patients = rows_and_patients[conditions.loc[condition, "split_file"]]
 
-        for group, rows_idx in groups_for(condition, split).items():
+        for group, rows_idx in groups_for(condition, split, keep_rows).items():
             sampler = bootstrap.PatientSampler(patients[rows_idx])
 
             def evaluate(idx):

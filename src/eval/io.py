@@ -72,3 +72,85 @@ def check_output(out: dict, split: pd.DataFrame) -> list[str]:
         if not np.isfinite(out[k]).all():
             problems.append(f"non-finite values in {k}")
     return problems
+
+
+# ---- duplicates and evaluation rows ------------------------------------------
+# splits/duplicates.csv (from scripts/find_duplicates.py) lists every image that
+# copies an image of a DIFFERENT patient: image_id, split, duplicate_of,
+# match_type, merge_into_patient_id. The listed image is the copy; the original
+# is the copy from the earliest split, so a validation image pointing back to
+# training is a leak.
+#
+# Evaluation rule (same everywhere, so T6 and T7 cannot diverge):
+#   - rows listed as copies in their own split are dropped (the original stays)
+#   - patients that share images are merged, so the bootstrap treats them as
+#     one person
+# The frozen split CSVs are never edited.
+
+DUPLICATES_FILE = ROOT / "splits" / "duplicates.csv"
+
+
+def load_duplicates(path: Path | None = DUPLICATES_FILE) -> pd.DataFrame | None:
+    """The duplicates table, or None if deduplication is switched off or the file is missing."""
+    if path is None:
+        return None
+    path = Path(path)
+    if not path.exists():
+        print(f"WARNING: {path} not found, evaluating all images without deduplication")
+        return None
+    return pd.read_csv(path, keep_default_na=False)
+
+
+def evaluation_rows(split_file: str, split: pd.DataFrame,
+                    duplicates: pd.DataFrame | None) -> tuple[np.ndarray, np.ndarray]:
+    """Row indices to evaluate and the patient ID of each row (after merging).
+
+    split_file: e.g. "africa_test.csv"; every condition built on this split
+                (clean, compressed, masked) gets the same rows.
+    """
+    patients = split["patient_id"].astype(str).to_numpy().copy()
+    if duplicates is None or duplicates.empty:
+        return np.arange(len(split)), patients
+    name = Path(split_file).stem
+    copies = duplicates[duplicates["split"] == name]
+    keep = ~split["image_id"].astype(str).isin(set(copies["image_id"].astype(str)))
+
+    # merge patients: every patient that owns a copy joins the original's patient
+    merge = {}
+    by_image = split.set_index(split["image_id"].astype(str))["patient_id"].astype(str)
+    for row in duplicates.itertuples():
+        target = str(row.merge_into_patient_id)
+        if not target:
+            continue
+        if row.split == name and str(row.image_id) in by_image.index:
+            merge[by_image[str(row.image_id)]] = target
+    for _ in range(10):                                     # follow chains a -> b -> c
+        changed = False
+        for src, dst in list(merge.items()):
+            if dst in merge and merge[dst] != dst:
+                merge[src] = merge[dst]
+                changed = True
+        if not changed:
+            break
+    patients = np.array([merge.get(p, p) for p in patients])
+    return np.flatnonzero(keep.to_numpy()), patients
+
+
+def validation_condition(condition_id: str) -> str:
+    """Masked test conditions are calibrated on masked validation images; all others on spain_val."""
+    return "spain_val_masked" if condition_id.endswith("_masked") else "spain_val"
+
+
+def reference_condition(condition_id: str) -> str:
+    """Familiar images for OOD AUROC: the clean (or masked) Spanish test set."""
+    return "spain_test_masked" if condition_id.endswith("_masked") else "spain_test"
+
+
+def is_validation(condition_id: str) -> bool:
+    return condition_id in ("spain_train",) or condition_id.startswith("spain_val")
+
+
+def subset(out: dict, idx: np.ndarray) -> dict:
+    """Restrict every per-image array of a loaded output to rows idx."""
+    return {k: (v[idx] if isinstance(v, np.ndarray) and v.ndim >= 1 and len(v) == len(out["y_true"])
+                else v) for k, v in out.items()}
