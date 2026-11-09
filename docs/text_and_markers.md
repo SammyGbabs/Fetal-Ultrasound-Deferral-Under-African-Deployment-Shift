@@ -19,7 +19,7 @@ spain_test and africa_test.
 
 The African counts come from looking at every one of the 450 images
 (`splits/markers_reviewed_africa.csv`). No calipers were seen in the 137 Spanish test
-images looked at; `scripts/find_markers.py` checks all of them.
+images looked at; `scripts/find_markers.py` checked all of them and found a few (below).
 
 ### The exam preset gives the thorax view away
 
@@ -58,6 +58,31 @@ corners of all 3,569 masked Spanish images still reads text on 26 (0.7%), none o
 preset: machine-name fragments ("E6", "S10") placed elsewhere on some screens, and
 operator annotations in Spanish ("DCHO ANT", "IZQ") that turn up across all views.
 `scripts/find_markers.py` repeats this on the whole image for every test image.
+
+## Markers flagged by find_markers.py
+
+`outputs/markers_ocr.csv` on the Drive covers every image in spain_test and africa_test.
+
+- **Africa.** 112 of 450 flagged, with no false flags: Ghana 66 of 73 (caliper
+  crosses) and Uganda 46 of 75 (OCR of the labels). It misses all 25 Uganda femur
+  images, whose calipers carry only a small digit. For Africa, use
+  `splits/markers_reviewed_africa.csv` (all 148 marked images, checked by eye) and
+  treat the OCR file as a cross-check.
+- **Spain.** 64 of 3,014 flagged, 58 of them on Voluson E6 and 40 of them brain views.
+  Most are operator notes inside the fan: twin labels ("feto a", "feto b", 34 images)
+  and sides ("DCHO", "IZQ", "DER"). About 10 carry measurement text ("D 20.57mm",
+  "AC", "EFW"). 5 have caliper crosses.
+- **Left after masking.** 75 Spanish and 45 Ugandan images still have readable text,
+  nearly all of it the same notes and labels inside the fan. Only about 5 Spanish images
+  keep a fragment of the machine name ("E6", "Voluson"). No preset word is left.
+
+## Effect on the results
+
+Masking barely changes accuracy. Averaged over the 45 runs, accuracy moves by -0.1
+points on spain_test and -0.2 on africa_test (worst run -1.3 and -1.1). The exception is
+frozen DINOv3, which drops about 1 point on spain_test (95.6% to 94.6%). The fine-tuned
+models and FetalCLIP move by 0.1 points or less, so they don't appear to rely on the
+burned-in text.
 
 ## What masking does not remove
 
