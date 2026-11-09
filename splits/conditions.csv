@@ -17,3 +17,6 @@ africa_test_q30,africa_test.csv,jpeg,30,data/compressed/africa_test_q30,11.6
 africa_test_q20,africa_test.csv,jpeg,20,data/compressed/africa_test_q20,8.9
 africa_test_q10,africa_test.csv,jpeg,10,data/compressed/africa_test_q10,5.8
 africa_test_messaging,africa_test.csv,messaging,70,data/compressed/africa_test_messaging,21.6
+spain_val_masked,spain_val.csv,masked,,data/masked/spain_val_masked,
+spain_test_masked,spain_test.csv,masked,,data/masked/spain_test_masked,
+africa_test_masked,africa_test.csv,masked,,data/masked/africa_test_masked,

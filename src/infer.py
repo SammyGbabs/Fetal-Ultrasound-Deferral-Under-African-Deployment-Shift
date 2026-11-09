@@ -2,6 +2,7 @@
 
     !python src/infer.py --run effb0_s0
     !python src/infer.py --run effb0_s0 rn50_s0 --conditions spain_val africa_test_q30
+    !python src/infer.py --run all --conditions spain_val_masked spain_test_masked africa_test_masked
 
 For each condition in splits/conditions.csv this writes, under outputs/<run_id>/:
     <condition_id>.npz        image_id, y_true, logits, features, mc_logits
@@ -149,11 +150,16 @@ def infer(run_id: str, condition_ids: list[str] | None, batch_size: int, force: 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--run", nargs="+", required=True, help="run IDs, e.g. effb0_s0")
+    parser.add_argument("--run", nargs="+", required=True,
+                        help="run IDs, e.g. effb0_s0, or 'all' for every finished run on Drive")
     parser.add_argument("--conditions", nargs="+", help="default: every condition in conditions.csv")
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--force", action="store_true", help="overwrite files that already exist")
     args = parser.parse_args()
+    if args.run == ["all"]:
+        args.run = sorted(p.parent.name for p in (DRIVE_ROOT / "runs").glob("*/meta.json")
+                          if not p.parent.name.startswith("_"))
+        print(f"{len(args.run)} finished runs")
     for run in args.run:
         infer(run, args.conditions, args.batch_size, args.force)
     write_manifest(DRIVE_ROOT / "outputs")
