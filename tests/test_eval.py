@@ -280,3 +280,26 @@ def test_deduplication_end_to_end(tmp_path):
     assert (t6_all[t6_all.condition == "africa_test"].n == n_africa).all()
     t7_all = pd.read_csv(ev / "no_dedup" / "results_main.csv")
     assert (t7_all[t7_all.group == "africa_test_all"].n_images == n_africa).all()
+
+
+def test_masking_ci_matches_t6(tmp_path):
+    """Masked-versus-original point estimates must equal T6's seed means for both conditions."""
+    fake, ev = tmp_path / "outputs", tmp_path / "eval"
+    subprocess.run([sys.executable, ROOT / "scripts/make_fake_outputs.py", fake], check=True)
+    subprocess.run([sys.executable, ROOT / "scripts/run_eval.py",
+                    "--outputs", fake, "--eval-dir", ev], check=True)
+    subprocess.run([sys.executable, ROOT / "scripts/run_masking_ci.py",
+                    "--outputs", fake, "--eval-dir", ev, "--B", "10"], check=True)
+    t6 = pd.read_csv(ev / "per_run_metrics.csv")
+    m = pd.read_csv(ev / "masking_ci.csv")
+    for base in ("spain_test", "africa_test"):
+        for version, cond in (("original", base), ("masked", f"{base}_masked")):
+            for metric in ("balanced_accuracy", "deployed_coverage_80", "errors_passed_80"):
+                a = t6[(t6.score == "msp") & (t6.calib == "raw") & (t6.condition == cond)]
+                a = a.groupby("variant")[metric].mean()
+                b = m[(m.method == "msp") & (m.group == f"{base}_all") & (m.metric == metric)]
+                assert np.allclose(a, b.set_index("variant")[version], atol=1e-9), (cond, metric)
+    assert np.allclose(m.difference, m.masked - m.original)
+    assert set(m.group) == {"spain_test_all", "africa_test_all", "africa_test_caliper_free"}
+    ok = m[np.isfinite(m.difference)]
+    assert (ok.ci_low <= ok.ci_high).all()
