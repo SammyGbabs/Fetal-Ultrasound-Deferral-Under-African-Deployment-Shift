@@ -100,6 +100,11 @@ for variant, vman in manifest.groupby("variant"):
         print(f"skip {variant} (already done)")
         continue
     run_ids = sorted(vman.run_id.unique())
+    available = io.conditions_of(manifest, variant)
+    v_conditions = [c for c in CONDITIONS if c in available]
+    if "spain_val" not in available or not v_conditions:
+        print(f"skip {variant}: needs spain_val and at least one of {CONDITIONS}")
+        continue
 
     # Temperatures and thresholds: Spanish validation only (same fit as T6)
     T, val = {}, {}
@@ -128,7 +133,7 @@ for variant, vman in manifest.groupby("variant"):
     thresholds = {k: float(np.quantile(v[2], 0.8)) for k, v in val_pred.items()}
 
     rows, curves = [], []
-    for condition in CONDITIONS:
+    for condition in v_conditions:
         split = io.load_split(conditions.loc[condition, "split_file"])
         loaded = {r: logits_only(r, condition) for r in run_ids}
         y = loaded[run_ids[0]][1]
@@ -207,7 +212,8 @@ for variant, vman in manifest.groupby("variant"):
         f.with_suffix(".tmp").rename(f)
     print(f"ok  {variant}: {len(rows)} result rows saved")
 
-variants = sorted(manifest.variant.unique())
+variants = [v for v in sorted(manifest.variant.unique())
+            if (progress_dir / f"{v}_results.csv").exists()]
 results = pd.concat([pd.read_csv(progress_dir / f"{v}_results.csv") for v in variants])
 curves = pd.concat([pd.read_csv(progress_dir / f"{v}_curves.csv") for v in variants])
 results.to_csv(eval_dir / "results_main.csv", index=False)

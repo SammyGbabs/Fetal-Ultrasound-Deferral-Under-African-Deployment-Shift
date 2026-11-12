@@ -9,6 +9,10 @@ Which rows are evaluated (src/eval/io.py, `evaluation_rows`):
 Masked test conditions get their temperature and deferral thresholds from
 spain_val_masked; every other condition from spain_val.
 
+Each model variant is evaluated on the conditions all its seeds have in the
+manifest (quantized runs have only a few). A variant needs spain_train and
+spain_val; masked conditions are skipped when spain_val_masked is missing.
+
 Saves each model variant's results to <eval-dir>/per_variant/ as soon as it
 finishes, so a disconnected session can resume. At the end, combines
 everything into per_run_metrics.csv and temperatures.csv.
@@ -66,11 +70,18 @@ for variant, vman in manifest.groupby("variant"):
         continue
 
     run_ids = sorted(vman.run_id.unique())
+    available = io.conditions_of(manifest, variant)
+    if not {"spain_train", "spain_val"} <= available:
+        print(f"skip {variant}: needs spain_train and spain_val, has {sorted(available)}")
+        continue
+    v_val = [c for c in val_conditions if c in available]
+    v_test = [c for c in test_conditions
+              if c in available and io.validation_condition(c) in available]
     fits, cache, rows, temps = {}, {}, [], []
     for run_id in run_ids:                                   # fit on Spanish data only
         train = io.subset(io.load_output(outputs_root, run_id, "spain_train"), keep("spain_train"))
         maha = scores.Mahalanobis().fit(train["features"], train["y_true"])
-        for vc in val_conditions:
+        for vc in v_val:
             val = io.load_output(outputs_root, run_id, vc)
             cache[(run_id, vc)] = val
             v = io.subset(val, keep(vc))
@@ -79,8 +90,8 @@ for variant, vman in manifest.groupby("variant"):
             temps.append({"run_id": run_id, "variant": variant, "val_condition": vc,
                           "temperature": T, "n_val_images": len(v["y_true"])})
 
-    for condition in val_conditions + test_conditions:
-        vc = condition if condition in val_conditions else io.validation_condition(condition)
+    for condition in v_val + v_test:
+        vc = condition if condition in v_val else io.validation_condition(condition)
         outs = {r: cache.get((r, condition)) or io.load_output(outputs_root, r, condition)
                 for r in run_ids}
         ens_logits = [outs[r]["logits"] for r in run_ids] if len(run_ids) > 1 else None
@@ -90,11 +101,11 @@ for variant, vman in manifest.groupby("variant"):
                 outs[run_id], fits[(run_id, vc)], ens_logits, ens_temps)
 
     for run_id in run_ids:
-        for condition in test_conditions:
+        for condition in v_test:
             vc, ref = io.validation_condition(condition), io.reference_condition(condition)
             res = cache[(run_id, condition, "res")]
             val_res = pipeline.subset_res(cache[(run_id, vc, "res")], keep(vc))
-            ref_res = (None if condition == ref else
+            ref_res = (None if condition == ref or ref not in v_test else
                        pipeline.subset_res(cache[(run_id, ref, "res")], keep(ref)))
             for r in pipeline.summarize(res, idx=keep(condition), val_res=val_res, ref_res=ref_res):
                 rows.append({"run_id": run_id, "variant": variant,
@@ -106,9 +117,10 @@ for variant, vman in manifest.groupby("variant"):
     pd.DataFrame(temps).to_csv(temps_file.with_suffix(".tmp"), index=False)
     metrics_file.with_suffix(".tmp").rename(metrics_file)
     temps_file.with_suffix(".tmp").rename(temps_file)
-    print(f"ok  {variant}: {len(run_ids)} runs saved")
+    print(f"ok  {variant}: {len(run_ids)} runs, {len(v_test)} test conditions saved")
 
-variants = sorted(manifest.variant.unique())
+variants = [v for v in sorted(manifest.variant.unique())
+            if (progress_dir / f"{v}_metrics.csv").exists()]
 metrics = pd.concat([pd.read_csv(progress_dir / f"{v}_metrics.csv") for v in variants])
 temperatures = pd.concat([pd.read_csv(progress_dir / f"{v}_temperatures.csv") for v in variants])
 metrics.to_csv(eval_dir / "per_run_metrics.csv", index=False)

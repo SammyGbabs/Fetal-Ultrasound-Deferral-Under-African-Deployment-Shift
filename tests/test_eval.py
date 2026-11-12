@@ -303,3 +303,57 @@ def test_masking_ci_matches_t6(tmp_path):
     assert set(m.group) == {"spain_test_all", "africa_test_all", "africa_test_caliper_free"}
     ok = m[np.isfinite(m.difference)]
     assert (ok.ci_low <= ok.ci_high).all()
+
+
+# ---- partial runs (e.g. quantized models with only some conditions) ----------
+
+QUANT_CONDITIONS = ["spain_train", "spain_val", "spain_test", "africa_test", "africa_test_q10"]
+
+
+def _add_partial_variant(fake: Path, source="fakecnn", name="fakecnn-int8"):
+    """Copy 5 conditions of an existing variant into a new 'quantized' variant."""
+    man = pd.read_csv(fake / "manifest.csv")
+    new_rows = []
+    for seed in range(5):
+        src, dst = fake / f"{source}_s{seed}", fake / f"{name}_s{seed}"
+        dst.mkdir()
+        for c in QUANT_CONDITIONS:
+            with np.load(src / f"{c}.npz", allow_pickle=True) as z:
+                d = {k: z[k] for k in z.files}
+            d["logits"] = d["logits"] + rng.normal(0, 0.05, d["logits"].shape).astype(np.float32)
+            d["mc_logits"] = np.repeat(d["logits"][:, None, :], 20, axis=1)
+            np.savez(dst / f"{c}.npz", **d)
+            new_rows.append({"run_id": f"{name}_s{seed}", "model": name, "seed": seed,
+                             "condition_id": c, "path": f"outputs/{name}_s{seed}/{c}.npz",
+                             "n_images": len(d["y_true"]), "accuracy": 0.0})
+    pd.concat([man, pd.DataFrame(new_rows)]).to_csv(fake / "manifest.csv", index=False)
+
+
+def test_scripts_handle_partial_variants(tmp_path):
+    fake, ev = tmp_path / "outputs", tmp_path / "eval"
+    subprocess.run([sys.executable, ROOT / "scripts/make_fake_outputs.py", fake], check=True)
+    _add_partial_variant(fake)
+    v = subprocess.run([sys.executable, ROOT / "scripts/validate_outputs.py", fake],
+                       capture_output=True, text=True)
+    assert v.returncode == 0, v.stdout
+    assert "fakecnn-int8: 5 conditions" in v.stdout
+
+    for script, extra in (("run_eval.py", []), ("run_t7.py", ["--B", "5"]),
+                          ("run_masking_ci.py", ["--B", "5"])):
+        subprocess.run([sys.executable, ROOT / "scripts" / script, "--outputs", fake,
+                        "--eval-dir", ev, *extra], check=True)
+
+    t6 = pd.read_csv(ev / "per_run_metrics.csv")
+    q = t6[t6.variant == "fakecnn-int8"]
+    assert set(q.condition) == {"spain_test", "africa_test", "africa_test_q10"}
+    assert len(q) == 5 * 3 * 8 * 2
+    n_test = sum(not io.is_validation(c) for c in io.load_conditions().condition_id)
+    assert len(t6[t6.variant == "fakecnn"]) == 5 * n_test * 8 * 2      # full variants unchanged
+
+    t7 = pd.read_csv(ev / "results_main.csv")
+    assert {"spain_test_all", "africa_test_all", "africa_test_q10_all"} <= \
+        set(t7[t7.variant == "fakecnn-int8"].group)
+
+    m = pd.read_csv(ev / "masking_ci.csv")
+    assert "fakecnn-int8" not in set(m.variant)                       # no masked outputs: skipped
+    assert {"fakecnn", "fakevit"} <= set(m.variant)

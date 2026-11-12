@@ -77,6 +77,11 @@ for variant, vman in manifest.groupby("variant"):
         print(f"skip {variant} (already done)")
         continue
     run_ids = sorted(vman.run_id.unique())
+    available = io.conditions_of(manifest, variant)
+    v_pairs = [(b, m) for b, m in PAIRS if b in available and m in available]
+    if not {"spain_val", "spain_val_masked"} <= available or not v_pairs:
+        print(f"skip {variant}: no masked outputs")
+        continue
 
     def predictions(logits_by_run):
         """(pred, confidence, uncertainty) per method and seed, raw (no temperature scaling)."""
@@ -97,7 +102,7 @@ for variant, vman in manifest.groupby("variant"):
         thresholds[vc] = {k: float(np.quantile(v[2], 0.8)) for k, v in val.items()}
 
     rows = []
-    for base, masked in PAIRS:
+    for base, masked in v_pairs:
         split = io.load_split(conditions.loc[base, "split_file"])
         keep_rows, patients = rows_and_patients[conditions.loc[base, "split_file"]]
         y = logits_only(run_ids[0], base)[1]
@@ -145,7 +150,7 @@ for variant, vman in manifest.groupby("variant"):
     out_file.with_suffix(".tmp").rename(out_file)
     print(f"ok  {variant}")
 
-variants = sorted(manifest.variant.unique())
+variants = [v for v in sorted(manifest.variant.unique()) if (progress_dir / f"{v}.csv").exists()]
 result = pd.concat([pd.read_csv(progress_dir / f"{v}.csv") for v in variants])
 result.to_csv(eval_dir / "masking_ci.csv", index=False)
 print(f"\nWrote {len(result)} rows to {eval_dir / 'masking_ci.csv'}")

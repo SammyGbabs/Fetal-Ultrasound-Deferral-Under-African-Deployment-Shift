@@ -154,3 +154,16 @@ def subset(out: dict, idx: np.ndarray) -> dict:
     """Restrict every per-image array of a loaded output to rows idx."""
     return {k: (v[idx] if isinstance(v, np.ndarray) and v.ndim >= 1 and len(v) == len(out["y_true"])
                 else v) for k, v in out.items()}
+
+
+# ---- partial runs ------------------------------------------------------------
+# Not every run has every condition (e.g. quantized runs such as effb0-int8_s0
+# have only a few). Each script evaluates, per model variant, the conditions
+# that ALL of that variant's seeds have in the manifest, so the ensemble always
+# combines the same images.
+
+def conditions_of(manifest: pd.DataFrame, variant: str) -> set:
+    """Conditions present for every run of a variant."""
+    v = manifest[manifest["variant"] == variant]
+    per_run = v.groupby("run_id")["condition_id"].apply(set)
+    return set.intersection(*per_run) if len(per_run) else set()
