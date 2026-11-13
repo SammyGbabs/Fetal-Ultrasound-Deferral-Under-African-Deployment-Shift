@@ -157,7 +157,8 @@ if __name__ == "__main__":
     parser.add_argument("--force", action="store_true", help="overwrite files that already exist")
     args = parser.parse_args()
     if args.run == ["all"]:
-        args.run = sorted(p.parent.name for p in (DRIVE_ROOT / "runs").glob("*/meta.json")
+        # trained runs only: quantized runs (e.g. effb0-int8_s0) have meta.json but no best.pt
+        args.run = sorted(p.parent.name for p in (DRIVE_ROOT / "runs").glob("*/best.pt")
                           if not p.parent.name.startswith("_"))
         print(f"{len(args.run)} finished runs")
     for run in args.run:
