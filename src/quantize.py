@@ -106,10 +106,14 @@ def run_session(sess: ort.InferenceSession, images: np.ndarray) -> tuple[np.ndar
     return logits.astype(np.float32), features.astype(np.float32)
 
 
-def convert_fp16(src: Path, dst: Path) -> None:
-    """FP16 copy of an FP32 model; input and outputs stay float32."""
+def convert_fp16(src: Path, dst: Path, keep_fp32: list[str] | None = None) -> None:
+    """FP16 copy of an FP32 model; input and outputs stay float32.
+
+    keep_fp32: names of nodes left in FP32 (the converter adds casts around them).
+    """
     from onnxconverter_common import float16
-    model = float16.convert_float_to_float16(onnx.load(str(src)), keep_io_types=True)
+    model = float16.convert_float_to_float16(onnx.load(str(src)), keep_io_types=True,
+                                             node_block_list=keep_fp32 or None)
     dst.parent.mkdir(parents=True, exist_ok=True)
     onnx.save_model(model, str(dst))
     onnx.checker.check_model(str(dst))
@@ -143,14 +147,25 @@ class CalibrationReader:
 
 CALIB_BATCH = 10         # calibration images per batch (and per stride)
 
-# Settings shared by every INT8 model; written to each meta.json
+# Settings shared by every INT8 model; written to each meta.json. Symmetry is passed to
+# ONNX Runtime explicitly (these are also its defaults for QUInt8 activations and QInt8
+# weights), so what is recorded is what was used.
 INT8_SETTINGS = {
     "format": "QDQ",
+    "weights": "signed 8-bit (QInt8), symmetric (zero point 0), per-channel along the output "
+               "channel (Conv axis 0, MatMul axis 1, Gemm axis 0 with transB); 1-D weights such as "
+               "LayerNorm scales fall back to per-tensor",
+    "activations": "unsigned 8-bit (QUInt8), asymmetric (scale and zero point from the calibrated "
+                   "range), per-tensor",
+    "bias": "32-bit integer, scale = input scale x weight scale",
     "per_channel": True,
     "activation_type": "QUInt8",
     "weight_type": "QInt8",
+    "activation_symmetric": False,
+    "weight_symmetric": True,
     "reduce_range": False,
     "percentile": 99.999,             # ONNX Runtime's default for the Percentile method
+    "op_types": "every op type ONNX Runtime quantizes in QDQ format (default list)",
     "preprocessing": "onnxruntime.quantization.quant_pre_process",
 }
 
@@ -163,16 +178,27 @@ def prepare_for_quantization(src: Path, dst: Path) -> None:
     except Exception as error:                                   # noqa: BLE001
         print(f"  pre-processing with symbolic shapes failed ({type(error).__name__}); retrying without")
         quant_pre_process(str(src), str(dst), skip_symbolic_shape=True)
+    # Every node needs a name, so mixed precision can list the nodes it keeps in float
+    model = onnx.load(str(dst))
+    if any(not n.name for n in model.graph.node):
+        for i, n in enumerate(model.graph.node):
+            n.name = n.name or f"{n.op_type}_{i}"
+        onnx.save_model(model, str(dst))
 
 
-def quantize_int8(src: Path, dst: Path, batches: list[np.ndarray], method: str) -> None:
-    """Static post-training INT8 quantization, QDQ format, per-channel weights."""
+def quantize_int8(src: Path, dst: Path, batches: list[np.ndarray], method: str,
+                  keep_float: list[str] | None = None) -> None:
+    """Static post-training INT8 quantization, QDQ format, per-channel weights.
+
+    keep_float: names of nodes left unquantized (mixed precision).
+    """
     from onnxruntime.quantization import (CalibrationMethod, QuantFormat, QuantType,
                                           quantize_static)
     methods = {"minmax": CalibrationMethod.MinMax, "percentile": CalibrationMethod.Percentile}
     # Calibrate one batch at a time and merge (see CalibrationReader). Not
     # CalibMaxIntermediateOutputs: in onnxruntime 1.31 MinMax discards each chunk unused.
-    extra = {"CalibStridedMinMax": 1}
+    extra = {"CalibStridedMinMax": 1, "ActivationSymmetric": INT8_SETTINGS["activation_symmetric"],
+             "WeightSymmetric": INT8_SETTINGS["weight_symmetric"]}
     if method == "percentile":
         extra["CalibPercentile"] = INT8_SETTINGS["percentile"]
     dst.parent.mkdir(parents=True, exist_ok=True)
@@ -180,8 +206,45 @@ def quantize_int8(src: Path, dst: Path, batches: list[np.ndarray], method: str) 
                     quant_format=QuantFormat.QDQ, per_channel=INT8_SETTINGS["per_channel"],
                     activation_type=QuantType.QUInt8, weight_type=QuantType.QInt8,
                     reduce_range=INT8_SETTINGS["reduce_range"], calibrate_method=methods[method],
-                    extra_options=extra)
+                    nodes_to_exclude=keep_float or None, extra_options=extra)
     onnx.checker.check_model(str(dst))
+
+
+def tensor_ranges(path: Path, batches) -> dict[str, dict]:
+    """Largest |value| of every float tensor computed inside the model, over the given batches.
+
+    Every float node output becomes an extra graph output of a temporary copy, so this
+    is the FP32 graph's own activations. Returns {tensor: {"max_abs", "nonfinite"}}.
+    """
+    import tempfile
+    model = onnx.shape_inference.infer_shapes(onnx.load(str(path)))
+    floats = {v.name for v in [*model.graph.value_info, *model.graph.output]
+              if v.type.tensor_type.elem_type == onnx.TensorProto.FLOAT}
+    existing = {o.name for o in model.graph.output}
+    names = [o for node in model.graph.node for o in node.output if o in floats]
+    for name in names:
+        if name not in existing:
+            model.graph.output.append(onnx.helper.make_tensor_value_info(name, onnx.TensorProto.FLOAT, None))
+    with tempfile.TemporaryDirectory() as tmp:
+        probe = Path(tmp) / "probe.onnx"
+        onnx.save_model(model, str(probe))
+        sess = ort.InferenceSession(str(probe), providers=["CPUExecutionProvider"])
+        ranges = {n: {"max_abs": 0.0, "nonfinite": False} for n in names}
+        for images in batches:
+            values = sess.run(names, {INPUT: images.astype(np.float32)})
+            for name, v in zip(names, values):
+                finite = np.isfinite(v)
+                r = ranges[name]
+                r["nonfinite"] |= bool(not finite.all())
+                if finite.any():
+                    r["max_abs"] = max(r["max_abs"], float(np.abs(v[finite]).max()))
+    return ranges
+
+
+def nodes_touching(path: Path, tensors: set[str]) -> list[str]:
+    """Names of the nodes that read or write any of the given tensors, in graph order."""
+    graph = onnx.load(str(path)).graph
+    return [n.name for n in graph.node if tensors & {*n.input, *n.output}]
 
 
 def versions() -> dict:
