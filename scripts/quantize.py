@@ -82,7 +82,8 @@ QUANT_DIR = DRIVE_ROOT / "outputs" / "quantization"
 VARIANTS = ["fp16", "int8", "fp16mixed", "int8mixed"]
 FP16_MAX = 65504.0       # largest finite FP16 value
 OUTLIER_RATIO = 100      # int8mixed: tensors above this many times the model's median range stay float
-FP16_RULE = ("if plain FP16 gives non-finite outputs on spain_train or spain_val, every node that "
+FP16_RULE = ("if plain FP16 gives non-finite outputs on spain_train or spain_val, or any tensor of the "
+             "FP32 model goes above 65504 (the FP16 maximum) on the 500 calibration images, every node that "
              "reads or writes a tensor whose FP32 |value| on spain_train or spain_val exceeds 65504 "
              "(the FP16 maximum) divided by a headroom factor stays in FP32; the factor starts at 1 and "
              "doubles (1, 2, 4, ... 32) until no spain_train or spain_val output is non-finite")
@@ -349,16 +350,21 @@ def nonfinite_rows(sess, images) -> int:
     return int(sum((~np.isfinite(q.run_session(sess, b)[0]).all(1)).sum() for b in images))
 
 
-def make_fp16mixed(run_id, cfg, check, val, y_val, keep, force) -> dict | None:
+def make_fp16mixed(run_id, cfg, check, val, y_val, keep, ranges, force) -> dict | None:
     qrun, plain_run = qrun_of(run_id, "fp16mixed"), qrun_of(run_id, "fp16")
     run_dir = DRIVE_ROOT / "runs" / qrun
     if (run_dir / "meta.json").exists() and (run_dir / "model.onnx").exists() and not force:
         meta = q.read_json(run_dir / "meta.json")
-        left = meta.get("mixed_precision", {}).get("nonfinite_rows_spain_train_val_after", 0)
-        if not left:
+        mixed = meta.get("mixed_precision", {})
+        left = mixed.get("nonfinite_rows_spain_train_val_after", 0)
+        missed = not mixed.get("triggered", True) and ranges["n_over_fp16_max"] > 0
+        if not left and not missed:
             return meta
-        # made before the tracing step, and still non-finite on Spanish data: rebuild it
-        print(f"  {qrun}: saved model still has {left} non-finite Spanish rows; rebuilding it")
+        # made under an earlier version of the rule: rebuild it
+        why = (f"still has {left} non-finite Spanish rows" if left else
+               f"was not triggered, but {ranges['n_over_fp16_max']} tensors go above {FP16_MAX:.0f} "
+               f"on the calibration images")
+        print(f"  {qrun}: saved model {why}; rebuilding it")
         shutil.rmtree(DRIVE_ROOT / "outputs" / qrun, ignore_errors=True)
     if not (DRIVE_ROOT / "runs" / plain_run / "meta.json").exists():
         print(f"  {qrun}: make {plain_run} first")
@@ -377,10 +383,13 @@ def make_fp16mixed(run_id, cfg, check, val, y_val, keep, force) -> dict | None:
                 bad += int((~np.isfinite(z["logits"]).all(1)).sum())
     else:
         bad = nonfinite_rows(q.session(DRIVE_ROOT / "runs" / plain_run / "model.onnx"), spanish())
-    note = {"rule": FP16_RULE, "plain_nonfinite_rows_spain_train_val": bad}
-    if bad == 0:
+    over_calib = ranges["n_over_fp16_max"]
+    note = {"rule": FP16_RULE, "plain_nonfinite_rows_spain_train_val": bad,
+            "calibration_tensors_over_fp16_max": over_calib}
+    if bad == 0 and over_calib == 0:
         return copy_variant(plain, qrun, cfg, check, {**note, "triggered": False, "kept_fp32": []})
-    print(f"  {plain_run}: {bad} spain_train/spain_val rows non-finite; finding the overflowing tensors")
+    print(f"  {plain_run}: {bad} spain_train/spain_val rows non-finite, {over_calib} tensors above "
+          f"{FP16_MAX:.0f} on the calibration images; finding the overflowing tensors")
     fp32 = DRIVE_ROOT / "runs" / run_id / "model_fp32.onnx"
     ranges = q.tensor_ranges(fp32, spanish(q.CALIB_BATCH))   # every tensor kept: small batches
     path, attempts = run_dir / "model.onnx", []
@@ -561,7 +570,8 @@ def main() -> None:
             makers = {
                 "fp16": lambda: make_fp16(run_id, cfg, check, val, y_val, keep, args.force),
                 "int8": lambda: make_int8(run_id, cfg, check, val, y_val, keep, calib, args.force),
-                "fp16mixed": lambda: make_fp16mixed(run_id, cfg, check, val, y_val, keep, args.force),
+                "fp16mixed": lambda: make_fp16mixed(run_id, cfg, check, val, y_val, keep, ranges,
+                                                    args.force),
                 "int8mixed": lambda: make_int8mixed(run_id, cfg, check, val, y_val, keep, calib, ranges,
                                                     args.force),
             }

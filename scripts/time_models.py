@@ -63,6 +63,15 @@ def nonfinite(run_id: str) -> dict:
             "nonfinite_by_condition": ";".join(f"{c}:{n}" for c, n in counts.items())}
 
 
+def save(out, rows: list[dict]) -> None:
+    """Write deployment.csv, replacing only the runs timed now and keeping the others."""
+    new = pd.DataFrame(rows)
+    if out.exists():
+        old = pd.read_csv(out)
+        new = pd.concat([old[~old["base_run"].isin(new["base_run"])], new], ignore_index=True)
+    new.to_csv(out, index=False)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--models", nargs="+", default=PRIORITY)
@@ -99,7 +108,7 @@ def main() -> None:
                 bad = f"  {rows[-1]['nonfinite_rows']} non-finite rows" if rows[-1]["nonfinite_rows"] else ""
                 print(f"  {rid:24s} {rows[-1]['file_size_mb']:8.1f} MB  {timing['median_ms']:8.2f} ms/image{bad}")
             QUANT_DIR.mkdir(parents=True, exist_ok=True)
-            pd.DataFrame(rows).to_csv(out, index=False)
+            save(out, rows)
     print(f"saved {out}")
 
 

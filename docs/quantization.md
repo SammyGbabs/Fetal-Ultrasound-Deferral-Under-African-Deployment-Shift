@@ -74,7 +74,8 @@ failures are reported as they are. Two extra variants keep the problem layers in
 each by a rule fixed on Spanish data and written to meta.json (`mixed_precision`):
 
 - `<model>-fp16mixed_s<seed>`: if plain FP16 gives non-finite outputs on spain_train or
-  spain_val, every node that reads or writes a tensor whose FP32 value on spain_train or
+  spain_val, or any tensor of the FP32 model goes above the FP16 maximum on the
+  calibration images (an overflow that the later layers may hide), every node that reads or writes a tensor whose FP32 value on spain_train or
   spain_val goes above a limit stays in FP32. The limit starts at the FP16 maximum
   (65504) and is halved (32752, 16376, ... down to 65504/32) until no spain_train or
   spain_val output is non-finite, since FP16 rounding can push a value that is just
