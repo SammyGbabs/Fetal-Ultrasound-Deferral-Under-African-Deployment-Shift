@@ -1,0 +1,151 @@
+"""Checks for src/quantize.py and the calibration list (scripts/quantize.py)."""
+import sys
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+import pytest
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+ort = pytest.importorskip("onnxruntime")
+pytest.importorskip("onnxconverter_common")
+torch = pytest.importorskip("torch")
+
+
+def test_calibration_list():
+    from scripts.quantize import CALIBRATION_FILE, calibration_images
+    calib = calibration_images()
+    assert CALIBRATION_FILE.exists() and len(calib) == 500
+    assert calib["label"].value_counts().tolist() == [125] * 4          # stratified by view
+    train = pd.read_csv(ROOT / "splits" / "spain_train.csv", keep_default_na=False)
+    assert set(calib["image_id"]) <= set(train["image_id"])             # training images only
+
+
+def test_export_fp16_int8(tmp_path):
+    from src import quantize as q
+    from src.models import build_model
+    torch.manual_seed(0)
+    model = build_model("effb0", 4, 0.2, pretrained=False).eval()
+    fp32 = tmp_path / "fp32.onnx"
+    q.export_onnx(model, fp32)
+
+    rng = np.random.default_rng(0)
+    images = rng.standard_normal((3, 3, 224, 224)).astype(np.float32)
+    with torch.no_grad():
+        ref = model.predict(torch.from_numpy(images), mc_passes=2)
+    logits, features = q.run_session(q.session(fp32), images)
+    assert np.abs(logits - ref["logits"].numpy()).max() < 1e-4             # same as predict()
+    assert np.abs(features - ref["features"].numpy()).max() < 1e-4
+
+    fp16 = tmp_path / "fp16.onnx"
+    q.convert_fp16(fp32, fp16)
+    logits16, features16 = q.run_session(q.session(fp16), images)
+    assert logits16.dtype == np.float32 and logits16.shape == (3, 4)
+    assert features16.shape == features.shape
+
+    prepared, int8 = tmp_path / "prepared.onnx", tmp_path / "int8.onnx"
+    q.prepare_for_quantization(fp32, prepared)
+    q.quantize_int8(prepared, int8, [images[:2], images[2:]], "minmax")
+    logits8, features8 = q.run_session(q.session(int8, threads=1), images)
+    assert logits8.shape == (3, 4) and features8.shape == features.shape
+    assert int8.stat().st_size < fp32.stat().st_size / 2                    # weights stored as 8 bits
+
+
+def test_mixed_precision(tmp_path):
+    """Activation ranges, and nodes kept in float by FP16 and INT8 mixed precision."""
+    import onnx
+    from src import quantize as q
+    from src.models import build_model
+    torch.manual_seed(0)
+    model = build_model("effb0", 4, 0.2, pretrained=False).eval()
+    fp32 = tmp_path / "fp32.onnx"
+    q.export_onnx(model, fp32)
+    rng = np.random.default_rng(0)
+    images = rng.standard_normal((4, 3, 224, 224)).astype(np.float32)
+
+    ranges = q.tensor_ranges(fp32, [images[:2], images[2:]])
+    logits, _ = q.run_session(q.session(fp32), images)
+    assert ranges["logits"]["max_abs"] == pytest.approx(float(np.abs(logits).max()), rel=1e-5)
+    biggest = sorted(ranges, key=lambda t: ranges[t]["max_abs"])[-3:]
+    kept = q.nodes_touching(fp32, set(biggest))
+    assert kept and all(kept)
+
+    fp16 = tmp_path / "fp16.onnx"
+    q.convert_fp16(fp32, fp16, keep_fp32=kept)
+    graph = onnx.load(str(fp16)).graph
+    assert {n.name for n in graph.node} >= set(kept)
+    assert np.isfinite(q.run_session(q.session(fp16), images)[0]).all()
+
+    prepared, int8 = tmp_path / "prepared.onnx", tmp_path / "int8.onnx"
+    q.prepare_for_quantization(fp32, prepared)
+    kept8 = q.nodes_touching(prepared, set(biggest) & set(q.tensor_ranges(prepared, [images])))
+    q.quantize_int8(prepared, int8, [images[:2], images[2:]], "minmax", keep_float=kept8)
+    quantized = {n.input[0] for n in onnx.load(str(int8)).graph.node if n.op_type == "QuantizeLinear"}
+    assert kept8 and not any(t in quantized for t in biggest if t not in ("logits", "features"))
+
+
+
+def test_fp16_cast_round_trips(tmp_path):
+    """Two neighbouring nodes kept in FP32 pass FP32 values directly, not via FP16 and back."""
+    import onnx
+    from src import quantize as q
+    from src.models import build_model
+    torch.manual_seed(0)
+    model = build_model("effb0", 4, 0.2, pretrained=False).eval()
+    fp32 = tmp_path / "fp32.onnx"
+    q.export_onnx(model, fp32)
+    graph = onnx.load(str(fp32)).graph
+    stem = next(n for n in graph.node if n.op_type == "Conv")      # first Conv on activations
+    kept = [stem.name] + [n.name for n in graph.node if stem.output[0] in n.input]
+
+    mixed = tmp_path / "mixed.onnx"
+    q.convert_fp16(fp32, mixed, keep_fp32=kept)
+    g = onnx.load(str(mixed)).graph
+    casts = {n.output[0]: n for n in g.node if n.op_type == "Cast"}
+    to = lambda n: next(a.i for a in n.attribute if a.name == "to")  # noqa: E731
+    assert not any(to(n) == onnx.TensorProto.FLOAT and n.input[0] in casts
+                   and to(casts[n.input[0]]) == onnx.TensorProto.FLOAT16 for n in casts.values())
+    stem_out = next(n for n in g.node if n.name == stem.name).output[0]
+    readers = [n for n in g.node if n.name in kept[1:]]
+    assert readers and all(stem_out in n.input for n in readers)       # read straight from the stem
+
+    images = np.random.default_rng(0).standard_normal((2, 3, 224, 224)).astype(np.float32)
+    ref = q.run_session(q.session(fp32), images)[0]
+    out = q.run_session(q.session(mixed), images)[0]
+    assert np.allclose(out, ref, atol=0.05 * np.abs(ref).max())
+
+
+def test_fp16_large_logits(tmp_path):
+    """Logits above the FP16 maximum survive when the head is kept in FP32 (mnv4_s4 case)."""
+    import onnx
+    from onnx import numpy_helper
+    from src import quantize as q
+    from src.models import build_model
+    torch.manual_seed(0)
+    model = build_model("effb0", 4, 0.2, pretrained=False).eval()
+    fp32 = tmp_path / "fp32.onnx"
+    q.export_onnx(model, fp32)
+    m = onnx.load(str(fp32))
+    for init in m.graph.initializer:                     # push the logits to ~1e5
+        if init.name == "model.head.bias":
+            init.CopyFrom(numpy_helper.from_array(numpy_helper.to_array(init) + 1e5, init.name))
+    onnx.save_model(m, str(fp32))
+    images = np.random.default_rng(0).standard_normal((2, 3, 224, 224)).astype(np.float32)
+    ref = q.run_session(q.session(fp32), images)[0]
+    assert np.abs(ref).max() > 65504
+
+    plain = tmp_path / "plain.onnx"
+    q.convert_fp16(fp32, plain)
+    bad = q.run_session(q.session(plain), images)[0]               # FP16 can't hold these logits
+    assert not (np.isfinite(bad).all() and np.allclose(bad, ref, rtol=0.01))
+
+    ranges = q.tensor_ranges(fp32, [images])
+    kept = q.nodes_touching(fp32, {t for t, r in ranges.items() if r["max_abs"] > 65504})
+    mixed = tmp_path / "mixed.onnx"
+    q.convert_fp16(fp32, mixed, keep_fp32=kept)
+    assert all(o.type.tensor_type.elem_type == onnx.TensorProto.FLOAT for o in onnx.load(str(mixed)).graph.output)
+    out = q.run_session(q.session(mixed), images)[0]
+    assert np.isfinite(out).all()
+    assert np.allclose(out, ref, rtol=0.01, atol=0.01 * np.abs(ref).max())

@@ -10,3 +10,9 @@ pyyaml>=6.0
 openpyxl>=3.1
 tqdm>=4.66
 requests>=2.31
+# ONNX export and quantization (scripts/quantize.py, scripts/time_models.py). Pinned because
+# quantized outputs depend on the ONNX Runtime version; see docs/quantization.md.
+onnx==1.23.2
+onnxruntime==1.31.1
+onnxconverter-common==1.16.0
+onnxscript==0.7.2
