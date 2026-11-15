@@ -34,7 +34,7 @@ import pandas as pd
 from scipy.special import softmax
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.eval import bootstrap, calibration, io, scores  # noqa: E402
+from src.eval import bootstrap, calibration, deferral, io, scores  # noqa: E402
 from src.paths import DRIVE_ROOT  # noqa: E402
 
 parser = argparse.ArgumentParser()
@@ -55,7 +55,7 @@ CONDITIONS = ["spain_test", "africa_test", "africa_test_q10"]
 CURVE_GROUPS = {"spain_test_all", "africa_test_all", "africa_test_q10_all"}
 GRID = np.round(np.arange(0.10, 1.0001, 0.05), 2)
 METRICS = ["accuracy", "balanced_accuracy", "ece", "silent_failure", "acc_at_80",
-           "deployed_coverage_80", "deployed_acc_80", "errors_passed_80"]
+           "deployed_coverage_80", "deployed_acc_80", "errors_passed_80", "invalid_rate"]
 
 
 def logits_only(run_id, condition):
@@ -130,7 +130,7 @@ for variant, vman in manifest.groupby("variant"):
         return out
 
     val_pred = predictions({r: val[r][0] for r in run_ids})
-    thresholds = {k: float(np.quantile(v[2], 0.8)) for k, v in val_pred.items()}
+    thresholds = {k: deferral.threshold_for_coverage(v[2], 0.8) for k, v in val_pred.items()}
 
     rows, curves = [], []
     for condition in v_conditions:

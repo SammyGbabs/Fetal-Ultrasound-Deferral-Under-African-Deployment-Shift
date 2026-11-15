@@ -43,6 +43,7 @@ if uneven:
 
 bad = 0
 feature_dims = {}
+invalid = []
 for row in manifest.itertuples():
     path = outputs_root / row.run_id / f"{row.condition_id}.npz"
     if not path.exists():
@@ -52,9 +53,16 @@ for row in manifest.itertuples():
     out = io.load_output(outputs_root, row.run_id, row.condition_id)
     problems = io.check_output(out, splits[conditions.loc[row.condition_id, "split_file"]])
     feature_dims.setdefault(row.variant, out["features"].shape[1])
+    counts = io.invalid_counts(out)
+    if counts:
+        invalid.append(f"  {row.run_id}/{row.condition_id}: {counts}")
     if problems:
         bad += 1
         print(f"FAIL {row.run_id}/{row.condition_id}: {problems}")
 print("\nFeature dimension per variant:", feature_dims)
+if invalid:
+    print(f"\nRows with non-finite values (evaluated as wrong and always deferred), "
+          f"{len(invalid)} files:")
+    print("\n".join(invalid))
 print(f"\n{len(manifest) - bad} of {len(manifest)} files pass contract D.")
 sys.exit(1 if bad else 0)

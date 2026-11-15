@@ -7,14 +7,22 @@ differ from the target; that difference is itself a result.
 """
 import numpy as np
 
+from src.eval.scores import INVALID_SCORE
+
 
 def threshold_for_coverage(val_uncertainty: np.ndarray, coverage: float) -> float:
-    """Uncertainty value below which `coverage` of validation images fall."""
-    return float(np.quantile(val_uncertainty, coverage))
+    """Uncertainty value below which `coverage` of validation images fall.
+
+    Validation rows with invalid (non-finite) outputs are left out, so they
+    cannot push the threshold up to INVALID_SCORE and let invalid rows through.
+    """
+    u = np.asarray(val_uncertainty)
+    u = u[u < INVALID_SCORE]
+    return float(np.quantile(u, coverage)) if len(u) else -np.inf
 
 
 def apply(y, pred, uncertainty, threshold) -> dict:
-    answered = uncertainty <= threshold
+    answered = (uncertainty <= threshold) & (uncertainty < INVALID_SCORE)
     n_ans = int(answered.sum())
     return {
         "coverage": float(answered.mean()),

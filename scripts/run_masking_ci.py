@@ -27,7 +27,7 @@ import pandas as pd
 from scipy.special import softmax
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from src.eval import bootstrap, calibration, io, scores  # noqa: E402
+from src.eval import bootstrap, calibration, deferral, io, scores  # noqa: E402
 from src.paths import DRIVE_ROOT  # noqa: E402
 
 parser = argparse.ArgumentParser()
@@ -99,7 +99,7 @@ for variant, vman in manifest.groupby("variant"):
     thresholds = {}
     for vc in ("spain_val", "spain_val_masked"):
         val = predictions({r: logits_only(r, vc)[0][val_keep] for r in run_ids})
-        thresholds[vc] = {k: float(np.quantile(v[2], 0.8)) for k, v in val.items()}
+        thresholds[vc] = {k: deferral.threshold_for_coverage(v[2], 0.8) for k, v in val.items()}
 
     rows = []
     for base, masked in v_pairs:

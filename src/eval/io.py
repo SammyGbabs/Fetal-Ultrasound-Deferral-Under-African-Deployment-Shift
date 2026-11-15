@@ -68,10 +68,22 @@ def check_output(out: dict, split: pd.DataFrame) -> list[str]:
         problems.append(f"features shape {out['features'].shape}")
     if out["mc_logits"].shape != (n, MC_PASSES, N_CLASSES):
         problems.append(f"mc_logits shape {out['mc_logits'].shape}")
-    for k in ("logits", "features", "mc_logits"):
-        if not np.isfinite(out[k]).all():
-            problems.append(f"non-finite values in {k}")
+    # Non-finite values (e.g. FP16 overflow) are NOT a contract problem: the
+    # evaluation treats those rows as invalid answers (see src/eval/scores.py).
+    # validate_outputs.py reports them with invalid_counts.
     return problems
+
+
+def invalid_counts(out: dict) -> dict:
+    """Number of rows with any non-finite value, per array (only arrays that have some)."""
+    counts = {}
+    for k in ("logits", "features", "mc_logits"):
+        if k in out:
+            a = np.asarray(out[k])
+            n_bad = int((~np.isfinite(a.reshape(len(a), -1)).all(axis=1)).sum())
+            if n_bad:
+                counts[k] = n_bad
+    return counts
 
 
 # ---- duplicates and evaluation rows ------------------------------------------

@@ -1,4 +1,6 @@
 """Metrics. All functions take plain arrays, so they work per run, per seed or per bootstrap sample."""
+import warnings
+
 import numpy as np
 from sklearn.metrics import balanced_accuracy_score, f1_score, roc_auc_score
 
@@ -8,8 +10,14 @@ def accuracy(y, pred):
 
 
 def balanced_accuracy(y, pred):
-    """Mean recall over the classes present in y (so Ghana/Uganda are scored on 3 classes)."""
-    return float(balanced_accuracy_score(y, pred))
+    """Mean recall over the classes present in y (so Ghana/Uganda are scored on 3 classes).
+
+    Invalid predictions (-1) simply count as wrong; sklearn's warning about a
+    predicted class absent from y is expected then and silenced.
+    """
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="y_pred contains classes not in y_true")
+        return float(balanced_accuracy_score(y, pred))
 
 
 def macro_f1(y, pred):
@@ -17,7 +25,14 @@ def macro_f1(y, pred):
 
 
 def ece(probs, y, n_bins=15):
-    """Expected calibration error on the top-label confidence, 15 equal-width bins."""
+    """Expected calibration error on the top-label confidence, 15 equal-width bins.
+
+    Rows without probabilities (non-finite outputs) are left out.
+    """
+    ok = np.isfinite(probs).all(1)
+    probs, y = probs[ok], y[ok]
+    if not len(y):
+        return float("nan")
     conf = probs.max(1)
     correct = probs.argmax(1) == y
     edges = np.linspace(0, 1, n_bins + 1)
@@ -30,12 +45,21 @@ def ece(probs, y, n_bins=15):
 
 
 def brier(probs, y):
+    """Rows without probabilities (non-finite outputs) are left out."""
+    ok = np.isfinite(probs).all(1)
+    probs, y = probs[ok], y[ok]
+    if not len(y):
+        return float("nan")
     onehot = np.eye(probs.shape[1])[y]
     return float(((probs - onehot) ** 2).sum(1).mean())
 
 
 def silent_failure_rate(probs, y, threshold=0.9):
-    """Share of all predictions that are wrong yet made with confidence above the threshold."""
+    """Share of all predictions that are wrong yet made with confidence above the threshold.
+
+    Invalid rows (NaN probabilities) have no confidence, so they are never silent failures,
+    but they stay in the denominator.
+    """
     conf = probs.max(1)
     wrong = probs.argmax(1) != y
     return float((wrong & (conf > threshold)).mean())

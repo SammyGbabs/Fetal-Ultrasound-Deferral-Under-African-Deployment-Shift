@@ -52,8 +52,9 @@ def per_image(out: dict, fit: RunFit, ens_logits: list | None = None,
     res = {"y": out["y_true"].astype(int)}
     for calib, T in (("raw", 1.0), ("ts", fit.T)):
         p = calibration.probs(out["logits"], T)
-        res[("single", calib)] = (p.argmax(1), p)
-        res[("msp", calib)] = scores.msp(out["logits"], T)[1]
+        pred, u = scores.msp(out["logits"], T)               # pred = -1 for invalid rows
+        res[("single", calib)] = (pred, p)
+        res[("msp", calib)] = u
         res[("entropy", calib)] = scores.predictive_entropy(out["logits"], T)[1]
         res[("energy", calib)] = scores.energy(out["logits"], T)[1]
 
@@ -93,8 +94,11 @@ def summarize(res: dict, idx: np.ndarray | None = None, val_res: dict | None = N
                 continue                     # e.g. ensemble when seeds are missing
             pred_all, p_all = res[(predictor, calib)]
             pred, p, u = pred_all[idx], p_all[idx], res[(score, calib)][idx]
+            invalid = pred == scores.INVALID_PRED
+            u = np.where(invalid, scores.INVALID_SCORE, u)   # no prediction -> always defer
             row = {
                 "score": score, "predictor": predictor, "calib": calib, "n": len(y),
+                "n_invalid": int(invalid.sum()),
                 "accuracy": metrics.accuracy(y, pred),
                 "balanced_accuracy": metrics.balanced_accuracy(y, pred),
                 "macro_f1": metrics.macro_f1(y, pred),
@@ -107,7 +111,10 @@ def summarize(res: dict, idx: np.ndarray | None = None, val_res: dict | None = N
                 tag = int(c * 100)
                 row[f"acc_at_{tag}"] = deferral.accuracy_at_coverage(y, pred, u, c)
                 if val_res is not None:
-                    thr = deferral.threshold_for_coverage(val_res[(score, calib)], c)
+                    val_pred = val_res[(predictor, calib)][0]
+                    val_u = np.where(val_pred == scores.INVALID_PRED, scores.INVALID_SCORE,
+                                     val_res[(score, calib)])
+                    thr = deferral.threshold_for_coverage(val_u, c)
                     d = deferral.apply(y, pred, u, thr)
                     row[f"deployed_coverage_{tag}"] = d["coverage"]
                     row[f"deployed_acc_{tag}"] = d["accuracy_answered"]

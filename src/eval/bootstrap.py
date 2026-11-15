@@ -11,6 +11,8 @@ metrics.py and deferral.py (checked to give identical values in the tests).
 """
 import numpy as np
 
+from src.eval.scores import INVALID_PRED, INVALID_SCORE
+
 N_CLASSES = 4
 
 
@@ -34,22 +36,31 @@ class PatientSampler:
 
 
 def headline_metrics(y, pred, conf, u, threshold, coverage=0.8):
-    """Metrics for one prediction set (all arrays already restricted to the sample)."""
+    """Metrics for one prediction set (all arrays already restricted to the sample).
+
+    Invalid rows (pred == -1, from non-finite outputs) count as wrong, are always
+    deferred, have no confidence (left out of ECE, never a silent failure) and
+    are reported as invalid_rate.
+    """
     correct = pred == y
     wrong = ~correct
     n = len(y)
+    invalid = pred == INVALID_PRED
+    u = np.where(invalid, INVALID_SCORE, u)
 
     counts = np.bincount(y, minlength=N_CLASSES)
     hits = np.bincount(y, weights=correct, minlength=N_CLASSES)
     present = counts > 0
     balanced_accuracy = float((hits[present] / counts[present]).mean())
 
-    bins = np.clip(np.ceil(conf * 15).astype(int) - 1, 0, 14)  # same (lo, hi] bins as metrics.ece
-    sum_conf = np.bincount(bins, weights=conf, minlength=15)
-    sum_correct = np.bincount(bins, weights=correct, minlength=15)
-    ece = float(np.abs(sum_correct - sum_conf).sum() / n)
+    has_conf = np.isfinite(conf)
+    c, ok = conf[has_conf], correct[has_conf]
+    bins = np.clip(np.ceil(c * 15).astype(int) - 1, 0, 14)  # same (lo, hi] bins as metrics.ece
+    sum_conf = np.bincount(bins, weights=c, minlength=15)
+    sum_correct = np.bincount(bins, weights=ok, minlength=15)
+    ece = float(np.abs(sum_correct - sum_conf).sum() / len(c)) if len(c) else np.nan
 
-    answered = u <= threshold
+    answered = (u <= threshold) & ~invalid
     n_answered = answered.sum()
     k = max(1, int(round(coverage * n)))
     keep = np.argsort(u, kind="stable")[:k]
@@ -57,11 +68,12 @@ def headline_metrics(y, pred, conf, u, threshold, coverage=0.8):
         "accuracy": float(correct.mean()),
         "balanced_accuracy": balanced_accuracy,
         "ece": ece,
-        "silent_failure": float((wrong & (conf > 0.9)).mean()),
+        "silent_failure": float((wrong & has_conf & (np.nan_to_num(conf) > 0.9)).mean()),
         "acc_at_80": float(correct[keep].mean()),
         "deployed_coverage_80": float(answered.mean()),
         "deployed_acc_80": float(correct[answered].mean()) if n_answered else np.nan,
         "errors_passed_80": float((wrong & answered).sum() / max(wrong.sum(), 1)),
+        "invalid_rate": float(invalid.mean()),
     }
 
 

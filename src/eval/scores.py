@@ -14,12 +14,44 @@ Both are increasing functions of the original scores, so every image keeps
 exactly the same rank, deferral thresholds pick the same images and all
 rank-based metrics (risk-coverage, AURC, OOD AUROC) are unchanged; only the
 ties caused by rounding disappear.
+
+Non-finite outputs: a row with any NaN or inf in its logits (for MC dropout:
+in any pass; for the ensemble: in any seed) gives no usable prediction. Such
+a row gets prediction INVALID_PRED (-1, so it always counts as wrong) and
+uncertainty INVALID_SCORE (the largest finite float, so every deferral
+threshold sends it to a clinician; a finite value keeps sklearn's AUROC
+working). This happens with some FP16 runs, whose activations overflow.
 """
 import numpy as np
 from scipy.special import log_softmax, logsumexp
 from sklearn.covariance import LedoitWolf
 
 EPS = 1e-12
+INVALID_PRED = -1
+INVALID_SCORE = float(np.finfo(np.float64).max)
+
+
+def invalid_rows(a: np.ndarray) -> np.ndarray:
+    """True for every row (first axis) that has any non-finite value."""
+    a = np.asarray(a)
+    return ~np.isfinite(a.reshape(len(a), -1)).all(axis=1)
+
+
+def _clean(a: np.ndarray, bad: np.ndarray) -> np.ndarray:
+    """Copy with invalid rows set to 0, so the maths below stays finite."""
+    if not bad.any():
+        return a
+    a = np.array(a, dtype=np.float64, copy=True)
+    a[bad] = 0.0
+    return a
+
+
+def _mark(bad: np.ndarray, pred: np.ndarray, *uncertainties):
+    """Invalid rows: prediction -1 (always wrong), uncertainty INVALID_SCORE (always deferred)."""
+    if not bad.any():
+        return (pred, *uncertainties)
+    pred = np.where(bad, INVALID_PRED, pred)
+    return (pred, *(np.where(bad, INVALID_SCORE, u) for u in uncertainties))
 
 
 def entropy(p: np.ndarray) -> np.ndarray:
@@ -44,19 +76,23 @@ def log_entropy(log_p: np.ndarray) -> np.ndarray:
 
 def msp(logits, T=1.0):
     """Maximum softmax probability. Uncertainty = log(1 - top probability)."""
-    lp = log_softmax(logits / T, axis=1)
-    return lp.argmax(1), log_one_minus_max(lp)
+    bad = invalid_rows(logits)
+    lp = log_softmax(_clean(logits, bad) / T, axis=1)
+    return _mark(bad, lp.argmax(1), log_one_minus_max(lp))
 
 
 def predictive_entropy(logits, T=1.0):
     """Uncertainty = log(entropy) of the predicted probabilities."""
-    lp = log_softmax(logits / T, axis=1)
-    return lp.argmax(1), log_entropy(lp)
+    bad = invalid_rows(logits)
+    lp = log_softmax(_clean(logits, bad) / T, axis=1)
+    return _mark(bad, lp.argmax(1), log_entropy(lp))
 
 
 def energy(logits, T=1.0):
     """Energy score (Liu et al., 2020): -T * logsumexp(logits / T). Higher = less familiar."""
-    return logits.argmax(1), -T * logsumexp(logits / T, axis=1)
+    bad = invalid_rows(logits)
+    logits = _clean(logits, bad)
+    return _mark(bad, logits.argmax(1), -T * logsumexp(logits / T, axis=1))
 
 
 def _mean_log_probs(log_p: np.ndarray, axis: int) -> np.ndarray:
@@ -72,21 +108,24 @@ def mc_dropout(mc_logits, T=1.0):
     passes). Note: for frozen backbones the only dropout is in the head, so
     this measures head uncertainty only.
     """
-    lp = log_softmax(mc_logits / T, axis=2)               # (N, passes, C)
+    bad = invalid_rows(mc_logits)                         # any pass non-finite
+    lp = log_softmax(_clean(mc_logits, bad) / T, axis=2)  # (N, passes, C)
     log_mean = _mean_log_probs(lp, axis=1)
     total = np.exp(log_entropy(log_mean))
     mutual_info = total - np.exp(log_entropy(lp)).mean(1)
-    return log_mean.argmax(1), log_entropy(log_mean), mutual_info
+    return _mark(bad, log_mean.argmax(1), log_entropy(log_mean), mutual_info)
 
 
 def ensemble(logits_per_seed: list, temps: list | None = None):
     """Deep ensemble from the 5 seed runs of one variant (same condition, same row order)."""
     temps = temps or [1.0] * len(logits_per_seed)
-    lp = np.stack([log_softmax(l / t, axis=1) for l, t in zip(logits_per_seed, temps)])  # (S, N, C)
+    bad = np.any([invalid_rows(l) for l in logits_per_seed], axis=0)   # any seed non-finite
+    lp = np.stack([log_softmax(_clean(l, bad) / t, axis=1)
+                   for l, t in zip(logits_per_seed, temps)])            # (S, N, C)
     log_mean = _mean_log_probs(lp, axis=0)
     total = np.exp(log_entropy(log_mean))
     mutual_info = total - np.exp(log_entropy(lp)).mean(0)
-    return log_mean.argmax(1), log_entropy(log_mean), mutual_info
+    return _mark(bad, log_mean.argmax(1), log_entropy(log_mean), mutual_info)
 
 
 class Mahalanobis:
@@ -94,17 +133,22 @@ class Mahalanobis:
 
     Uncertainty = distance to the nearest class mean. Ledoit-Wolf shrinkage keeps the
     covariance stable when the feature dimension is large relative to 2,992 images.
+    Rows with non-finite features are left out of the fit and scored INVALID_SCORE.
     """
 
     def fit(self, features: np.ndarray, y: np.ndarray, n_classes: int = 4):
+        ok = ~invalid_rows(features)
+        features, y = features[ok], y[ok]
         self.means = np.stack([features[y == c].mean(0) for c in range(n_classes)])
         centred = features - self.means[y]
         self.precision = LedoitWolf().fit(centred).precision_
         return self
 
     def score(self, features: np.ndarray) -> np.ndarray:
+        bad = invalid_rows(features)
+        features = _clean(features, bad)
         d = []
         for m in self.means:
             diff = features - m
             d.append(np.einsum("ij,jk,ik->i", diff, self.precision, diff))
-        return np.min(np.stack(d, 1), axis=1)
+        return np.where(bad, INVALID_SCORE, np.min(np.stack(d, 1), axis=1))

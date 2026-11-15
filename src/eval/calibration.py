@@ -16,12 +16,17 @@ def nll(logits: np.ndarray, y: np.ndarray, T: float = 1.0) -> float:
 
 def fit_temperature(val_logits: np.ndarray, val_y: np.ndarray,
                     bounds: tuple = (0.05, 20.0)) -> float:
-    """Minimise validation NLL over log T (bounded, so T cannot run off to 0)."""
+    """Minimise validation NLL over log T (bounded, so T cannot run off to 0).
+
+    Rows with non-finite logits (e.g. FP16 overflow) are left out of the fit.
+    """
+    ok = np.isfinite(val_logits).all(axis=1)
+    val_logits, val_y = val_logits[ok], val_y[ok]
     res = minimize_scalar(lambda lt: nll(val_logits, val_y, np.exp(lt)),
                           bounds=(np.log(bounds[0]), np.log(bounds[1])), method="bounded")
     return float(np.exp(res.x))
 
 
 def probs(logits: np.ndarray, T: float = 1.0) -> np.ndarray:
-    """Softmax over the last axis, after temperature."""
+    """Softmax over the last axis, after temperature. Non-finite rows stay NaN."""
     return softmax(logits / T, axis=-1)

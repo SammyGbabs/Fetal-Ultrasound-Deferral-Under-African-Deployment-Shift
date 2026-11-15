@@ -357,3 +357,104 @@ def test_scripts_handle_partial_variants(tmp_path):
     m = pd.read_csv(ev / "masking_ci.csv")
     assert "fakecnn-int8" not in set(m.variant)                       # no masked outputs: skipped
     assert {"fakecnn", "fakevit"} <= set(m.variant)
+
+
+# ---- non-finite outputs (FP16 overflow) ---------------------------------------
+
+def test_invalid_rows_are_wrong_and_always_deferred():
+    logits = rng.normal(size=(40, 4))
+    logits[3, 1] = np.nan
+    mc = np.repeat(logits[:, None, :], 20, axis=1)
+    mc[7, 4, 0] = np.inf                                      # one bad pass is enough
+    for pred, u in (scores.msp(logits), scores.predictive_entropy(logits),
+                    scores.energy(logits), scores.mc_dropout(mc)[:2]):
+        assert np.isfinite(u).all()                            # no NaN reaches any metric
+    pred, u = scores.msp(logits)
+    assert pred[3] == scores.INVALID_PRED and u[3] == scores.INVALID_SCORE
+    pred_mc, u_mc, mi = scores.mc_dropout(mc)
+    assert pred_mc[7] == scores.INVALID_PRED and u_mc[7] == mi[7] == scores.INVALID_SCORE
+    other = rng.normal(size=(40, 4))
+    pred_e, u_e, _ = scores.ensemble([other, logits])          # one seed invalid -> ensemble invalid
+    assert pred_e[3] == scores.INVALID_PRED and u_e[3] == scores.INVALID_SCORE
+    assert (pred_e[np.arange(40) != 3] != scores.INVALID_PRED).all()
+
+    # validation threshold ignores invalid rows, even when they are more than 20%
+    val_u = np.r_[np.linspace(0, 1, 70), np.full(30, scores.INVALID_SCORE)]
+    thr = deferral.threshold_for_coverage(val_u, 0.8)
+    assert thr == np.quantile(np.linspace(0, 1, 70), 0.8)
+    y = rng.integers(0, 4, 40)
+    d = deferral.apply(y, pred, u, thr)
+    assert d["n_answered"] < 40 and not ((u <= thr) & (pred == scores.INVALID_PRED)).any()
+
+    # temperature and Mahalanobis fits skip invalid rows; ECE/Brier skip rows without probabilities
+    y = rng.integers(0, 4, 300)
+    val = np.eye(4)[y] * 4 + rng.normal(size=(300, 4))
+    T_clean = calibration.fit_temperature(val, y)
+    val_bad = val.copy(); val_bad[:5] = np.nan
+    assert np.isclose(calibration.fit_temperature(val_bad, y), calibration.fit_temperature(val[5:], y[5:]))
+    assert np.isfinite(T_clean)
+    feats = np.eye(4)[y] @ rng.normal(size=(4, 6)) + rng.normal(size=(300, 6))
+    feats_bad = feats.copy(); feats_bad[0, 0] = np.nan
+    m = scores.Mahalanobis().fit(feats_bad, y)
+    assert np.isfinite(m.precision).all()
+    s = m.score(feats_bad)
+    assert s[0] == scores.INVALID_SCORE and np.isfinite(s).all()
+    p = calibration.probs(val_bad)
+    assert np.isclose(metrics.ece(p, y), metrics.ece(p[5:], y[5:]))
+    assert np.isclose(metrics.brier(p, y), metrics.brier(p[5:], y[5:]))
+    assert metrics.silent_failure_rate(p, y) == metrics.silent_failure_rate(p[5:], y[5:]) * 295 / 300
+    assert np.isfinite(scores.INVALID_SCORE)                  # sklearn AUROC rejects inf
+    assert 0 <= metrics.ood_auroc(np.zeros(5), np.r_[1.0, scores.INVALID_SCORE]) <= 1
+
+
+def test_nan_rows_end_to_end(tmp_path):
+    """FP16-like NaN rows: validate passes and reports them; T6 and T7 agree;
+    invalid rows count as wrong, are never answered and are counted."""
+    fake, ev = tmp_path / "outputs", tmp_path / "eval"
+    subprocess.run([sys.executable, ROOT / "scripts/make_fake_outputs.py", fake], check=True)
+    bad_rows = {"spain_val": [0, 1], "spain_test": [2, 3, 4], "africa_test": list(range(10))}
+    for c, rows in bad_rows.items():                          # one seed overflows, like mnv4-fp16_s4
+        f = fake / "fakecnn_s4" / f"{c}.npz"
+        with np.load(f, allow_pickle=True) as z:
+            d = {k: z[k] for k in z.files}
+        d["logits"][rows] = np.nan
+        d["mc_logits"][rows] = np.nan
+        np.savez(f, **d)
+    v = subprocess.run([sys.executable, ROOT / "scripts/validate_outputs.py", fake],
+                       capture_output=True, text=True)
+    assert v.returncode == 0, v.stdout
+    assert "fakecnn_s4/africa_test: {'logits': 10, 'mc_logits': 10}" in v.stdout
+    for script, extra in (("run_eval.py", []), ("run_t7.py", ["--B", "5"]),
+                          ("run_masking_ci.py", ["--B", "5"])):
+        subprocess.run([sys.executable, ROOT / "scripts" / script, "--outputs", fake,
+                        "--eval-dir", ev, *extra], check=True)
+
+    t6 = pd.read_csv(ev / "per_run_metrics.csv")
+    a = t6[(t6.run_id == "fakecnn_s4") & (t6.condition == "africa_test")]
+    keep = io.evaluation_rows("africa_test.csv", io.load_split("africa_test.csv"),
+                              io.load_duplicates())[0]
+    n_bad = len(set(bad_rows["africa_test"]) & set(keep))
+    assert (a[a.predictor == "single"].n_invalid == n_bad).all()
+    assert (a[a.predictor == "ensemble"].n_invalid == n_bad).all()
+    assert (t6[t6.run_id == "fakecnn_s3"].query("predictor != 'ensemble'").n_invalid == 0).all()
+    acc_cols = [c for c in t6 if c.startswith("deployed_acc_")]   # NaN only when nothing answered
+    assert t6.drop(columns=["ood_auroc", *acc_cols]).select_dtypes("number").notna().all().all()
+    for c in acc_cols:
+        assert (t6.loc[t6[c].isna(), c.replace("acc", "coverage")] == 0).all()
+
+    t7 = pd.read_csv(ev / "results_main.csv")
+    for method, score in (("msp", "msp"), ("ensemble", "ens_entropy")):
+        for calib in ("raw", "ts"):
+            x = t6[(t6.score == score) & (t6.calib == calib) & (t6.condition == "africa_test")]
+            x = x.groupby("variant").mean(numeric_only=True)
+            for metric in ("balanced_accuracy", "ece", "silent_failure",
+                           "deployed_coverage_80", "errors_passed_80"):
+                b = t7[(t7.method == method) & (t7.calib == calib) &
+                       (t7.group == "africa_test_all") & (t7.metric == metric)]
+                assert np.allclose(x[metric], b.set_index("variant").estimate, atol=1e-6), \
+                    (method, calib, metric)
+    inv = t7[(t7.metric == "invalid_rate") & (t7.group == "africa_test_all") & (t7.calib == "raw")]
+    inv = inv.set_index(["variant", "method"]).estimate
+    assert np.isclose(inv[("fakecnn", "ensemble")], n_bad / len(keep))
+    assert np.isclose(inv[("fakecnn", "msp")], n_bad / len(keep) / 5)   # one seed of five
+    assert inv[("fakevit", "msp")] == 0
