@@ -58,6 +58,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
+import onnx
 import pandas as pd
 import torch
 
@@ -84,7 +85,11 @@ FP16_MAX = 65504.0       # largest finite FP16 value
 OUTLIER_RATIO = 100      # int8mixed: tensors above this many times the model's median range stay float
 FP16_RULE = ("if plain FP16 gives non-finite outputs on spain_train or spain_val, every node that "
              "reads or writes a tensor whose FP32 |value| exceeds 65504 (the FP16 maximum) on "
-             "spain_train or spain_val stays in FP32")
+             "spain_train or spain_val stays in FP32; while any spain_train or spain_val row is still "
+             "non-finite, the first tensor that turns non-finite on those images is traced and its "
+             "producing node (or, for a cast added by the converter, the nodes reading it) is also kept "
+             "in FP32")
+FP16_MAX_ROUNDS = 50     # fp16mixed: most tracing rounds before giving up
 INT8_RULE = (f"every node that reads or writes a tensor whose largest |value| on the 500 calibration "
              f"images (FP32, after quant_pre_process) is more than {OUTLIER_RATIO} times the median "
              f"of that value over all the model's tensors stays in float")
@@ -347,11 +352,28 @@ def nonfinite_rows(sess, images) -> int:
     return int(sum((~np.isfinite(q.run_session(sess, b)[0]).all(1)).sum() for b in images))
 
 
+def nonfinite_images(sess, cfg) -> np.ndarray:
+    """The spain_train and spain_val images whose outputs from this model are non-finite."""
+    bad = []
+    for split in ("spain_train", "spain_val"):
+        for images, _ in batches(split, cfg, batch_size=q.CALIB_BATCH):
+            rows = ~np.isfinite(q.run_session(sess, images)[0]).all(1)
+            if rows.any():
+                bad.append(images[rows])
+    return np.concatenate(bad) if bad else np.empty((0,), np.float32)
+
+
 def make_fp16mixed(run_id, cfg, check, val, y_val, keep, force) -> dict | None:
     qrun, plain_run = qrun_of(run_id, "fp16mixed"), qrun_of(run_id, "fp16")
     run_dir = DRIVE_ROOT / "runs" / qrun
     if (run_dir / "meta.json").exists() and (run_dir / "model.onnx").exists() and not force:
-        return q.read_json(run_dir / "meta.json")
+        meta = q.read_json(run_dir / "meta.json")
+        left = meta.get("mixed_precision", {}).get("nonfinite_rows_spain_train_val_after", 0)
+        if not left:
+            return meta
+        # made before the tracing step, and still non-finite on Spanish data: rebuild it
+        print(f"  {qrun}: saved model still has {left} non-finite Spanish rows; rebuilding with tracing")
+        shutil.rmtree(DRIVE_ROOT / "outputs" / qrun, ignore_errors=True)
     if not (DRIVE_ROOT / "runs" / plain_run / "meta.json").exists():
         print(f"  {qrun}: make {plain_run} first")
         return None
@@ -377,12 +399,30 @@ def make_fp16mixed(run_id, cfg, check, val, y_val, keep, force) -> dict | None:
     ranges = q.tensor_ranges(fp32, spanish())
     over = {t: r["max_abs"] for t, r in ranges.items() if r["max_abs"] > FP16_MAX}
     nodes = q.nodes_touching(fp32, set(over))
-    if not nodes:
-        return failed(qrun, run_id, "fp16mixed", RuntimeError(
-            f"plain FP16 has {bad} non-finite Spanish rows but no FP32 tensor exceeds {FP16_MAX}"))
-    path = run_dir / "model.onnx"
+    fp32_nodes = {n.name for n in onnx.load(str(fp32)).graph.node}
+    path, traced = run_dir / "model.onnx", []
     try:
         q.convert_fp16(fp32, path, keep_fp32=nodes)
+        bad_images = nonfinite_images(q.session(path), cfg)
+        for _ in range(FP16_MAX_ROUNDS):
+            if not len(bad_images):
+                break
+            tensor = q.first_nonfinite(path, bad_images)
+            if tensor is None:
+                break
+            graph = onnx.load(str(path)).graph
+            producer = next((n for n in graph.node if tensor in n.output), None)
+            if producer is not None and producer.name in fp32_nodes:
+                new = [producer.name]
+            else:   # a cast the converter added: keep the nodes that read it
+                new = [n.name for n in graph.node if tensor in n.input and n.name in fp32_nodes]
+            new = [n for n in new if n not in nodes]
+            if not new:
+                break
+            nodes += new
+            traced.append({"tensor": tensor, "kept_fp32": new})
+            q.convert_fp16(fp32, path, keep_fp32=nodes)
+            bad_images = bad_images[~np.isfinite(q.run_session(q.session(path), bad_images)[0]).all(1)]
         sess = q.session(path)
         logits, _ = predict(sess, val)
         still_bad = nonfinite_rows(sess, spanish())
@@ -392,11 +432,11 @@ def make_fp16mixed(run_id, cfg, check, val, y_val, keep, force) -> dict | None:
     meta.update(conversion="onnxconverter_common.float16.convert_float_to_float16(keep_io_types=True, "
                            "node_block_list=kept_fp32)",
                 mixed_precision={**note, "triggered": True, "overflowing_tensors": over,
-                                 "kept_fp32": nodes, "n_kept_fp32": len(nodes),
+                                 "traced": traced, "kept_fp32": nodes, "n_kept_fp32": len(nodes),
                                  "nonfinite_rows_spain_train_val_after": still_bad},
                 val_acc=accuracy(logits, y_val, keep))
-    print(f"  {qrun:24s} {len(over)} tensors over {FP16_MAX:.0f}, {len(nodes)} nodes kept in FP32, "
-          f"{still_bad} non-finite Spanish rows left")
+    print(f"  {qrun:24s} {len(over)} tensors over {FP16_MAX:.0f}, {len(traced)} traced, "
+          f"{len(nodes)} nodes kept in FP32, {still_bad} non-finite Spanish rows left")
     meta = sanity(meta, check["fp32_val_acc"])
     q.write_json(run_dir / "meta.json", meta)
     return meta

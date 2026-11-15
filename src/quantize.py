@@ -114,9 +114,45 @@ def convert_fp16(src: Path, dst: Path, keep_fp32: list[str] | None = None) -> No
     from onnxconverter_common import float16
     model = float16.convert_float_to_float16(onnx.load(str(src)), keep_io_types=True,
                                              node_block_list=keep_fp32 or None)
+    if keep_fp32:
+        remove_cast_round_trips(model)
     dst.parent.mkdir(parents=True, exist_ok=True)
     onnx.save_model(model, str(dst))
     onnx.checker.check_model(str(dst))
+
+
+def remove_cast_round_trips(model: onnx.ModelProto) -> int:
+    """Drop FP32 -> FP16 -> FP32 cast pairs between two nodes kept in FP32.
+
+    The converter casts a kept node's output to FP16 and back before the next kept node
+    reads it, so a value above 65504 still overflows on the way. The FP32 readers are
+    pointed at the original FP32 tensor instead. Returns the number of casts removed.
+    """
+    graph = model.graph
+    to = {n.output[0]: n for n in graph.node if n.op_type == "Cast"}
+    outputs = {o.name for o in graph.output}
+
+    def cast_to(node, dtype):
+        return node.op_type == "Cast" and next(a.i for a in node.attribute if a.name == "to") == dtype
+
+    rename, drop = {}, []
+    for node in graph.node:
+        first = to.get(node.input[0]) if node.input else None
+        if (cast_to(node, onnx.TensorProto.FLOAT) and first is not None
+                and cast_to(first, onnx.TensorProto.FLOAT16) and node.output[0] not in outputs):
+            rename[node.output[0]] = first.input[0]
+            drop.append(node)
+    for node in drop:
+        graph.node.remove(node)
+    for node in graph.node:
+        for i, name in enumerate(node.input):
+            if name in rename:
+                node.input[i] = rename[name]
+    used = {i for n in graph.node for i in n.input} | outputs
+    unused = [n for n in graph.node if n.op_type == "Cast" and n.output[0] not in used]
+    for node in unused:
+        graph.node.remove(node)
+    return len(drop) + len(unused)
 
 
 class CalibrationReader:
@@ -239,6 +275,30 @@ def tensor_ranges(path: Path, batches) -> dict[str, dict]:
                 if finite.any():
                     r["max_abs"] = max(r["max_abs"], float(np.abs(v[finite]).max()))
     return ranges
+
+
+def first_nonfinite(path: Path, images: np.ndarray) -> str | None:
+    """First tensor, in graph order, that holds a NaN or infinity on these images.
+
+    Works on FP32 and FP16 graphs: every float node output becomes an extra graph output
+    of a temporary copy. Graph order is topological, so this tensor's own inputs are
+    finite and its producer is where the overflow happens.
+    """
+    import tempfile
+    model = onnx.shape_inference.infer_shapes(onnx.load(str(path)))
+    kinds = {onnx.TensorProto.FLOAT, onnx.TensorProto.FLOAT16}
+    types = {v.name: v.type.tensor_type.elem_type for v in [*model.graph.value_info, *model.graph.output]}
+    existing = {o.name for o in model.graph.output}
+    names = [o for node in model.graph.node for o in node.output if types.get(o) in kinds]
+    for name in names:
+        if name not in existing:
+            model.graph.output.append(onnx.helper.make_tensor_value_info(name, types[name], None))
+    with tempfile.TemporaryDirectory() as tmp:
+        probe = Path(tmp) / "probe.onnx"
+        onnx.save_model(model, str(probe))
+        sess = ort.InferenceSession(str(probe), providers=["CPUExecutionProvider"])
+        values = sess.run(names, {INPUT: images.astype(np.float32)})
+    return next((n for n, v in zip(names, values) if not np.isfinite(v).all()), None)
 
 
 def nodes_touching(path: Path, tensors: set[str]) -> list[str]:

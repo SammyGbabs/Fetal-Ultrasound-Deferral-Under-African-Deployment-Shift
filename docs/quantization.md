@@ -75,8 +75,15 @@ each by a rule fixed on Spanish data and written to meta.json (`mixed_precision`
 
 - `<model>-fp16mixed_s<seed>`: if plain FP16 gives non-finite outputs on spain_train or
   spain_val, every node that reads or writes a tensor whose FP32 value goes above the
-  FP16 maximum (65504) on spain_train or spain_val stays in FP32. If the rule doesn't
-  trigger, the variant is the plain FP16 model.
+  FP16 maximum (65504) on spain_train or spain_val stays in FP32. That isn't always
+  enough, because an FP16 op can overflow even when the FP32 tensor stays under 65504.
+  So while any spain_train or spain_val row is still non-finite, we find the first
+  tensor that turns non-finite on those images and keep its node in FP32 too (or, if it
+  is a cast the converter added, the nodes that read it). This repeats until the Spanish
+  outputs are finite, up to 50 rounds, and the traced tensors are listed in meta.json.
+  The converter also sends values between two FP32 nodes through FP16 and back, which
+  would bring the overflow back, so those cast pairs are removed after converting. If
+  the rule doesn't trigger, the variant is the plain FP16 model.
 - `<model>-int8mixed_s<seed>`: every node that reads or writes an outlier tensor stays
   in float, an outlier being a tensor whose largest |value| on the calibration images
   is more than 100 times the median over all the model's tensors. Calibration is chosen
