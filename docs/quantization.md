@@ -80,8 +80,10 @@ each by a rule fixed on Spanish data and written to meta.json (`mixed_precision`
   spain_val output is non-finite, since FP16 rounding can push a value that is just
   under the maximum over it. Each limit tried is listed in meta.json. The converter
   sends values between two FP32 nodes through FP16 and back, which would bring the
-  overflow back, so those cast pairs are removed after converting. If the rule doesn't
-  trigger, the variant is the plain FP16 model.
+  overflow back, so those cast pairs are removed after converting. When the node writing
+  a model output is kept in FP32, the converter also casts that output to FP16 and
+  declares it FP16, so its last cast is set back to float32. If the rule doesn't trigger,
+  the variant is the plain FP16 model.
 - `<model>-int8mixed_s<seed>`: every node that reads or writes an outlier tensor stays
   in float, an outlier being a tensor whose largest |value| on the calibration images
   is more than 100 times the median over all the model's tensors. Calibration is chosen

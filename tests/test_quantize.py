@@ -115,3 +115,37 @@ def test_fp16_cast_round_trips(tmp_path):
     ref = q.run_session(q.session(fp32), images)[0]
     out = q.run_session(q.session(mixed), images)[0]
     assert np.allclose(out, ref, atol=0.05 * np.abs(ref).max())
+
+
+def test_fp16_large_logits(tmp_path):
+    """Logits above the FP16 maximum survive when the head is kept in FP32 (mnv4_s4 case)."""
+    import onnx
+    from onnx import numpy_helper
+    from src import quantize as q
+    from src.models import build_model
+    torch.manual_seed(0)
+    model = build_model("effb0", 4, 0.2, pretrained=False).eval()
+    fp32 = tmp_path / "fp32.onnx"
+    q.export_onnx(model, fp32)
+    m = onnx.load(str(fp32))
+    for init in m.graph.initializer:                     # push the logits to ~1e5
+        if init.name == "model.head.bias":
+            init.CopyFrom(numpy_helper.from_array(numpy_helper.to_array(init) + 1e5, init.name))
+    onnx.save_model(m, str(fp32))
+    images = np.random.default_rng(0).standard_normal((2, 3, 224, 224)).astype(np.float32)
+    ref = q.run_session(q.session(fp32), images)[0]
+    assert np.abs(ref).max() > 65504
+
+    plain = tmp_path / "plain.onnx"
+    q.convert_fp16(fp32, plain)
+    bad = q.run_session(q.session(plain), images)[0]               # FP16 can't hold these logits
+    assert not (np.isfinite(bad).all() and np.allclose(bad, ref, rtol=0.01))
+
+    ranges = q.tensor_ranges(fp32, [images])
+    kept = q.nodes_touching(fp32, {t for t, r in ranges.items() if r["max_abs"] > 65504})
+    mixed = tmp_path / "mixed.onnx"
+    q.convert_fp16(fp32, mixed, keep_fp32=kept)
+    assert all(o.type.tensor_type.elem_type == onnx.TensorProto.FLOAT for o in onnx.load(str(mixed)).graph.output)
+    out = q.run_session(q.session(mixed), images)[0]
+    assert np.isfinite(out).all()
+    assert np.allclose(out, ref, rtol=0.01, atol=0.01 * np.abs(ref).max())

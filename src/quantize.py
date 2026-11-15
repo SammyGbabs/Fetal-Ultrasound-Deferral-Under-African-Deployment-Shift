@@ -115,10 +115,31 @@ def convert_fp16(src: Path, dst: Path, keep_fp32: list[str] | None = None) -> No
     model = float16.convert_float_to_float16(onnx.load(str(src)), keep_io_types=True,
                                              node_block_list=keep_fp32 or None)
     if keep_fp32:
+        float32_outputs(model)
         remove_cast_round_trips(model)
     dst.parent.mkdir(parents=True, exist_ok=True)
     onnx.save_model(model, str(dst))
     onnx.checker.check_model(str(dst))
+
+
+def float32_outputs(model: onnx.ModelProto) -> None:
+    """Make every graph output float32 again.
+
+    When the node writing a graph output is kept in FP32, the converter casts that output
+    to FP16 and declares it FP16, despite keep_io_types, so a logit above 65504 becomes
+    infinite on the way out. The final cast is pointed at float32 instead.
+    """
+    producers = {o: n for n in model.graph.node for o in n.output}
+    for out in model.graph.output:
+        if out.type.tensor_type.elem_type != onnx.TensorProto.FLOAT16:
+            continue
+        node = producers[out.name]
+        if node.op_type != "Cast":
+            raise ValueError(f"FP16 graph output {out.name} is not written by a Cast")
+        for a in node.attribute:
+            if a.name == "to":
+                a.i = onnx.TensorProto.FLOAT
+        out.type.tensor_type.elem_type = onnx.TensorProto.FLOAT
 
 
 def remove_cast_round_trips(model: onnx.ModelProto) -> int:
