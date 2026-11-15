@@ -358,15 +358,15 @@ def make_fp16mixed(run_id, cfg, check, val, y_val, keep, force) -> dict | None:
         if not left:
             return meta
         # made before the tracing step, and still non-finite on Spanish data: rebuild it
-        print(f"  {qrun}: saved model still has {left} non-finite Spanish rows; rebuilding with tracing")
+        print(f"  {qrun}: saved model still has {left} non-finite Spanish rows; rebuilding it")
         shutil.rmtree(DRIVE_ROOT / "outputs" / qrun, ignore_errors=True)
     if not (DRIVE_ROOT / "runs" / plain_run / "meta.json").exists():
         print(f"  {qrun}: make {plain_run} first")
         return None
     plain = q.read_json(DRIVE_ROOT / "runs" / plain_run / "meta.json")
-    def spanish():     # same batch size as the saved outputs, so the check sees what they see
+    def spanish(batch_size=32):     # 32 as in the saved outputs, so the check sees what they see
         for split in ("spain_train", "spain_val"):
-            for images, _ in batches(split, cfg):
+            for images, _ in batches(split, cfg, batch_size=batch_size):
                 yield images
 
     saved = [DRIVE_ROOT / "outputs" / plain_run / f"{c}.npz" for c in ("spain_train", "spain_val")]
@@ -382,7 +382,7 @@ def make_fp16mixed(run_id, cfg, check, val, y_val, keep, force) -> dict | None:
         return copy_variant(plain, qrun, cfg, check, {**note, "triggered": False, "kept_fp32": []})
     print(f"  {plain_run}: {bad} spain_train/spain_val rows non-finite; finding the overflowing tensors")
     fp32 = DRIVE_ROOT / "runs" / run_id / "model_fp32.onnx"
-    ranges = q.tensor_ranges(fp32, spanish())
+    ranges = q.tensor_ranges(fp32, spanish(q.CALIB_BATCH))   # every tensor kept: small batches
     path, attempts = run_dir / "model.onnx", []
     try:
         for headroom in FP16_HEADROOM:
