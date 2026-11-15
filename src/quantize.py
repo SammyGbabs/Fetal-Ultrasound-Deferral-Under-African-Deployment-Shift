@@ -277,30 +277,6 @@ def tensor_ranges(path: Path, batches) -> dict[str, dict]:
     return ranges
 
 
-def first_nonfinite(path: Path, images: np.ndarray) -> str | None:
-    """First tensor, in graph order, that holds a NaN or infinity on these images.
-
-    Works on FP32 and FP16 graphs: every float node output becomes an extra graph output
-    of a temporary copy. Graph order is topological, so this tensor's own inputs are
-    finite and its producer is where the overflow happens.
-    """
-    import tempfile
-    model = onnx.shape_inference.infer_shapes(onnx.load(str(path)))
-    kinds = {onnx.TensorProto.FLOAT, onnx.TensorProto.FLOAT16}
-    types = {v.name: v.type.tensor_type.elem_type for v in [*model.graph.value_info, *model.graph.output]}
-    existing = {o.name for o in model.graph.output}
-    names = [o for node in model.graph.node for o in node.output if types.get(o) in kinds]
-    for name in names:
-        if name not in existing:
-            model.graph.output.append(onnx.helper.make_tensor_value_info(name, types[name], None))
-    with tempfile.TemporaryDirectory() as tmp:
-        probe = Path(tmp) / "probe.onnx"
-        onnx.save_model(model, str(probe))
-        sess = ort.InferenceSession(str(probe), providers=["CPUExecutionProvider"])
-        values = sess.run(names, {INPUT: images.astype(np.float32)})
-    return next((n for n, v in zip(names, values) if not np.isfinite(v).all()), None)
-
-
 def nodes_touching(path: Path, tensors: set[str]) -> list[str]:
     """Names of the nodes that read or write any of the given tensors, in graph order."""
     graph = onnx.load(str(path)).graph

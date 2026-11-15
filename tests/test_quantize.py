@@ -86,8 +86,9 @@ def test_mixed_precision(tmp_path):
     assert kept8 and not any(t in quantized for t in biggest if t not in ("logits", "features"))
 
 
-def test_fp16_tracing(tmp_path):
-    """first_nonfinite finds where FP16 overflows; kept FP32 nodes then stay FP32 end to end."""
+
+def test_fp16_cast_round_trips(tmp_path):
+    """Two neighbouring nodes kept in FP32 pass FP32 values directly, not via FP16 and back."""
     import onnx
     from src import quantize as q
     from src.models import build_model
@@ -95,19 +96,10 @@ def test_fp16_tracing(tmp_path):
     model = build_model("effb0", 4, 0.2, pretrained=False).eval()
     fp32 = tmp_path / "fp32.onnx"
     q.export_onnx(model, fp32)
-    images = np.random.default_rng(0).standard_normal((2, 3, 224, 224)).astype(np.float32) * 1e5
+    graph = onnx.load(str(fp32)).graph
+    stem = next(n for n in graph.node if n.op_type == "Conv")      # first Conv on activations
+    kept = [stem.name] + [n.name for n in graph.node if stem.output[0] in n.input]
 
-    fp16 = tmp_path / "fp16.onnx"
-    q.convert_fp16(fp32, fp16)
-    first = q.first_nonfinite(fp16, images)
-    assert first is not None
-    graph = onnx.load(str(fp16)).graph
-    producer = next(n for n in graph.node if first in n.output)
-    assert q.first_nonfinite(fp32, images) is None
-
-    # keep the overflowing node and the nodes reading it: no FP16 round trip between them
-    names = {n.name for n in onnx.load(str(fp32)).graph.node}
-    kept = [producer.name] + [n.name for n in graph.node if first in n.input and n.name in names]
     mixed = tmp_path / "mixed.onnx"
     q.convert_fp16(fp32, mixed, keep_fp32=kept)
     g = onnx.load(str(mixed)).graph
@@ -115,4 +107,11 @@ def test_fp16_tracing(tmp_path):
     to = lambda n: next(a.i for a in n.attribute if a.name == "to")  # noqa: E731
     assert not any(to(n) == onnx.TensorProto.FLOAT and n.input[0] in casts
                    and to(casts[n.input[0]]) == onnx.TensorProto.FLOAT16 for n in casts.values())
-    assert q.first_nonfinite(mixed, images) != first
+    stem_out = next(n for n in g.node if n.name == stem.name).output[0]
+    readers = [n for n in g.node if n.name in kept[1:]]
+    assert readers and all(stem_out in n.input for n in readers)       # read straight from the stem
+
+    images = np.random.default_rng(0).standard_normal((2, 3, 224, 224)).astype(np.float32)
+    ref = q.run_session(q.session(fp32), images)[0]
+    out = q.run_session(q.session(mixed), images)[0]
+    assert np.allclose(out, ref, atol=0.05 * np.abs(ref).max())
