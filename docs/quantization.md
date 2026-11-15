@@ -104,8 +104,10 @@ original, and a drop of more than 1 point is flagged (`flagged` in
 
 ## Outputs
 
-- `outputs/<model>-fp16_s<seed>/` and `outputs/<model>-int8_s<seed>/`: contract D for
-  spain_train, spain_val, spain_test, africa_test and africa_test_q10, in the manifest.
+- `outputs/<model>-<precision>_s<seed>/` for fp16, int8, fp16mixed and int8mixed:
+  contract D for spain_train, spain_val, spain_test, africa_test and africa_test_q10, in
+  the manifest. **Some FP16 outputs have rows with NaN logits** (see Results); the
+  evaluation has to count them, not drop them silently.
   **`mc_logits` holds the plain logits repeated 20 times: the ONNX models have no
   dropout, so MC-dropout results are not valid for quantized runs.**
 - `runs/<run>/model_fp32.onnx` and `onnx_check.json` next to each original checkpoint.
@@ -136,5 +138,71 @@ onnxconverter-common 1.16.0).
 
 ## Results
 
-To fill in after the Colab run: export check, spain_val accuracy against FP32 per model
-and precision, calibration methods chosen, flagged models, file sizes and CPU times.
+Colab CPU run, all four models x 5 seeds. Accuracies are on spain_val without the 14
+leaked images; a drop of more than 1 point against FP32 is flagged.
+
+**Export.** All 20 FP32 ONNX models pass the export check, the largest relative logit
+difference being 6.3e-5 (mnv4_s1) and every prediction the same.
+
+**Plain FP16** matches FP32 on spain_val for every run (the largest drop is 0.2 points,
+mnv4_s0), so nothing is flagged. It halves the file but is no faster on this CPU.
+Two runs give NaN logits, both MobileNetV4:
+
+- mnv4-fp16_s4: 51 rows (1 spain_train, 25 africa_test, 25 africa_test_q10). On that
+  spain_train image the FP32 logits reach 76,425, above the FP16 maximum, so FP16 can't
+  represent the output at all.
+- mnv4-fp16_s1: 2 rows (1 spain_test, 1 africa_test_q10).
+
+**Plain INT8** passes on 7 of 20 runs.
+
+| Model | spain_val, INT8 / FP32 per seed (s0 to s4) | Flagged |
+|---|---|---|
+| effb0 | 0.861/0.998, 0.878/1.000, 0.893/0.996, 0.867/0.998, 0.791/1.000 | 5 of 5 |
+| mnv4 | 0.471/0.996, 0.111/0.994, 0.470/0.994, 0.989/0.998, 0.471/0.996 | 4 of 5 |
+| convnext | 0.991/0.996, 0.948/0.996, 0.989/0.996, 0.996/0.998, 0.667/0.998 | 2 of 5 (s1, s4) |
+| vits16 | 0.974/0.987, 0.998/0.998, 0.994/0.996, 0.994/0.998, 0.980/0.994 | 2 of 5 (s0, s4) |
+
+**Activation outliers explain some of this, not all.** The largest activation over the
+median, on the calibration images:
+
+| Model | Largest / median | Outlier tensors (over 100x) |
+|---|---|---|
+| mnv4 s0, s1, s2, s4 | 499x, 1943x, 258x, 384x | 9, 19, 7, 8 |
+| mnv4 s3 | 10x | 0 |
+| convnext, all seeds | 275x to 343x | 5 each |
+| effb0, all seeds | 43x to 48x | 0 |
+| vits16, all seeds | about 40x | 0 |
+
+The 100x threshold falls in the gap between 48x and 258x. MobileNetV4's broken seeds
+are exactly its outlier seeds, and s3, the one without outliers, is the one that works.
+effb0 breaks on every seed with small activations, so its failure has another cause
+we haven't found; vits16's two flagged seeds lose 1.3 and 1.5 points, also without
+outliers.
+
+**Mixed INT8** (outlier layers in float) passes on 10 of 20 runs:
+
+- convnext: fixed on all seeds, equal to FP32 on s0, s2 and s4 and within 0.6 points on
+  s1 and s3 (s1 0.948 to 0.991, s4 0.667 to 0.998). Same size and speed as plain INT8.
+- mnv4: fixed on s1 only (0.111 to 0.987). s0, s2 and s4 stay broken (0.471, 0.555,
+  0.471) with 10 to 13 nodes in float, and the files grow from 8.7 to 12 to 17 MB.
+- effb0, vits16 and mnv4_s3: no outliers, so the same model as plain INT8.
+
+**Mixed FP16** triggers on mnv4_s4 (NaN on spain_train) and mnv4_s1 (7 tensors above
+65504 on the calibration images), keeping 18 and 11 nodes in FP32; every other run is
+the plain FP16 model. Both keep FP32 accuracy on spain_val. mnv4-fp16mixed_s4 has no NaN
+rows left on any condition. mnv4-fp16mixed_s1 still has the 2 NaN rows of the plain
+model (spain_test and africa_test_q10): those images overflow somewhere the Spanish
+training images don't reach, and the rule isn't tuned on test or African data.
+
+**Size and CPU time** (AMD EPYC 7B12, one thread, median over seeds):
+
+| Model | FP32 | FP16 | INT8 |
+|---|---|---|---|
+| effb0 | 15.3 MB, 16.7 ms | 7.7 MB, 16.4 ms | 4.6 MB, 17.7 ms |
+| mnv4 | 32.1 MB, 20.9 ms | 16.1 MB, 21.1 ms | 8.7 MB, 13.6 ms |
+| convnext | 106.2 MB, 126.4 ms | 53.2 MB, 136.9 ms | 27.3 MB, 87.2 ms |
+| vits16 | 82.8 MB, 120.9 ms | 41.5 MB, 123.2 ms | 21.4 MB, 81.7 ms |
+
+INT8 is about 4x smaller and 31 to 35% faster for mnv4, convnext and vits16; effb0
+gets no speed-up. One timing, effb0_s0 FP32 at 25.7 ms, is a warm-up outlier against
+16.4 to 16.8 ms for the other seeds; the table uses medians over seeds.
