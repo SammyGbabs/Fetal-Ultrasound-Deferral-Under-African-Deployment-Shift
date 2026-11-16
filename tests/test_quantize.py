@@ -149,3 +149,41 @@ def test_fp16_large_logits(tmp_path):
     out = q.run_session(q.session(mixed), images)[0]
     assert np.isfinite(out).all()
     assert np.allclose(out, ref, rtol=0.01, atol=0.01 * np.abs(ref).max())
+
+
+def test_int8_settings(tmp_path):
+    """reduce_range and uint8 weights change the stored weights; fuse=False runs QDQ in float."""
+    import onnx
+    from onnx import numpy_helper
+    from src import quantize as q
+    from src.models import build_model
+    torch.manual_seed(0)
+    model = build_model("effb0", 4, 0.2, pretrained=False).eval()
+    fp32, prepared = tmp_path / "fp32.onnx", tmp_path / "prepared.onnx"
+    q.export_onnx(model, fp32)
+    q.prepare_for_quantization(fp32, prepared)
+    images = np.random.default_rng(0).standard_normal((2, 3, 224, 224)).astype(np.float32)
+
+    def weights(path):
+        m = onnx.load(str(path))
+        inits = {i.name: i for i in m.graph.initializer}
+        return [numpy_helper.to_array(inits[n.input[0]]) for n in m.graph.node
+                if n.op_type == "DequantizeLinear" and n.input[0] in inits and inits[n.input[0]].dims
+                and len(inits[n.input[0]].dims) == 4]
+
+    for name, change in {"plain": {}, "rr": {"reduce_range": True},
+                         "u8": {"weight_type": "QUInt8", "weight_symmetric": False}}.items():
+        path = tmp_path / f"{name}.onnx"
+        q.quantize_int8(prepared, path, [images], "minmax", settings=change)
+        w = weights(path)
+        assert w
+        if name == "plain":
+            assert all(x.dtype == np.int8 for x in w) and max(np.abs(x).max() for x in w) == 127
+        if name == "rr":
+            assert all(x.dtype == np.int8 for x in w) and max(np.abs(x).max() for x in w) <= 64
+        if name == "u8":
+            assert all(x.dtype == np.uint8 for x in w)
+        fused = q.run_session(q.session(path), images)[0]
+        simulated = q.run_session(q.session(path, fuse=False), images)[0]
+        assert fused.shape == simulated.shape == (2, 4) and np.isfinite(simulated).all()
+    assert q.cpu_int8_flags().keys() >= {"vnni", "flags_read"}
