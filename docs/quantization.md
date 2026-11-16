@@ -116,6 +116,8 @@ original, and a drop of more than 1 point is flagged (`flagged` in
 - `outputs/quantization/checks.csv`: one row per quantized run.
 - `outputs/quantization/failed/`: models that couldn't be converted, with the error.
 - `outputs/quantization/activations.csv`: activation ranges per FP32 run (above).
+- `outputs/quantization/int8_saturation.csv`: the effb0 saturation check (above), with
+  the CPU model and its VNNI flags.
 - `outputs/quantization/deployment.csv`: file size and CPU time per image for FP32 and
   every quantized variant. Batch size 1, one thread, 20 warm-up runs, then the median
   over 200 spain_val images. The time covers the model only, not image loading and
@@ -176,8 +178,32 @@ median, on the calibration images:
 The 100x threshold falls in the gap between 48x and 258x. MobileNetV4's broken seeds
 are exactly its outlier seeds, and s3, the one without outliers, is the one that works.
 effb0 breaks on every seed with small activations, so its failure has another cause
-we haven't found; vits16's two flagged seeds lose 1.3 and 1.5 points, also without
-outliers.
+(below); vits16's two flagged seeds lose 1.3 and 1.5 points, also without outliers.
+
+**effb0 is not saturation.** Without VNNI, ONNX Runtime's x86 kernels for uint8
+activations and int8 weights add pairs of products in 16 bits, which can saturate.
+`scripts/check_int8_saturation.py` quantizes each effb0 seed three ways (plain,
+reduce_range, uint8 weights), each with MinMax and Percentile, and scores it on
+spain_val twice: as normal, and with graph optimisation off, so the QDQ nodes run as
+DequantizeLinear and float ops with no integer kernels. The gap between the two is
+what the kernels cost. On a Colab Intel Xeon (2.20 GHz, AVX2, no VNNI), mean spain_val
+accuracy over the five seeds (FP32 0.996 to 1.000):
+
+| Setting | MinMax | Percentile | Normal minus no integer kernels (Percentile) |
+|---|---|---|---|
+| plain (the settings used) | 0.734 | 0.858 | -1.5 to -2.4 points |
+| reduce_range (7-bit weights) | 0.780 | 0.884 | -0.6 to +1.3 |
+| uint8 weights | 0.736 | 0.891 | -0.7 to +1.1 |
+
+Saturation is there, about 2 points with the plain settings, and both other settings
+remove it. Most of the drop is quantization error: without the integer kernels the
+plain Percentile models still only reach 0.82 to 0.91. The best result on any seed is 0.941
+(s0, reduce_range with Percentile); every seed stays 5.7 to 15.3 points below FP32
+whatever the setting, and no setting is best on every seed. Percentile beats MinMax
+by 4 to 22 points throughout. Plain INT8 stays the main result. The plain Percentile
+accuracies here are the same as in the table above, so the check reproduces the
+original models. Times in this check come from a different, shared machine and aren't
+comparable with deployment.csv.
 
 **Mixed INT8** (outlier layers in float) passes on 10 of 20 runs:
 
