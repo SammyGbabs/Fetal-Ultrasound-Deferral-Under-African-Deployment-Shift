@@ -91,9 +91,15 @@ def identity_outputs(model: onnx.ModelProto) -> onnx.ModelProto:
     return model
 
 
-def session(path: Path, threads: int | None = None) -> ort.InferenceSession:
-    """CPU session. threads=None lets ONNX Runtime use every core."""
+def session(path: Path, threads: int | None = None, fuse: bool = True) -> ort.InferenceSession:
+    """CPU session. threads=None lets ONNX Runtime use every core.
+
+    fuse=False turns off graph optimisation, so an INT8 QDQ model runs as
+    DequantizeLinear + float ops (quantization error only, no integer kernels).
+    """
     options = ort.SessionOptions()
+    if not fuse:
+        options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
     if threads is not None:
         options.intra_op_num_threads = threads
         options.inter_op_num_threads = 1
@@ -244,25 +250,29 @@ def prepare_for_quantization(src: Path, dst: Path) -> None:
 
 
 def quantize_int8(src: Path, dst: Path, batches: list[np.ndarray], method: str,
-                  keep_float: list[str] | None = None) -> None:
+                  keep_float: list[str] | None = None, settings: dict | None = None) -> None:
     """Static post-training INT8 quantization, QDQ format, per-channel weights.
 
     keep_float: names of nodes left unquantized (mixed precision).
+    settings: INT8_SETTINGS with some values changed (weight_type, weight_symmetric,
+    reduce_range); INT8_SETTINGS itself when None.
     """
+    settings = {**INT8_SETTINGS, **(settings or {})}
     from onnxruntime.quantization import (CalibrationMethod, QuantFormat, QuantType,
                                           quantize_static)
     methods = {"minmax": CalibrationMethod.MinMax, "percentile": CalibrationMethod.Percentile}
     # Calibrate one batch at a time and merge (see CalibrationReader). Not
     # CalibMaxIntermediateOutputs: in onnxruntime 1.31 MinMax discards each chunk unused.
-    extra = {"CalibStridedMinMax": 1, "ActivationSymmetric": INT8_SETTINGS["activation_symmetric"],
-             "WeightSymmetric": INT8_SETTINGS["weight_symmetric"]}
+    extra = {"CalibStridedMinMax": 1, "ActivationSymmetric": settings["activation_symmetric"],
+             "WeightSymmetric": settings["weight_symmetric"]}
     if method == "percentile":
-        extra["CalibPercentile"] = INT8_SETTINGS["percentile"]
+        extra["CalibPercentile"] = settings["percentile"]
     dst.parent.mkdir(parents=True, exist_ok=True)
     quantize_static(str(src), str(dst), CalibrationReader(batches),
-                    quant_format=QuantFormat.QDQ, per_channel=INT8_SETTINGS["per_channel"],
-                    activation_type=QuantType.QUInt8, weight_type=QuantType.QInt8,
-                    reduce_range=INT8_SETTINGS["reduce_range"], calibrate_method=methods[method],
+                    quant_format=QuantFormat.QDQ, per_channel=settings["per_channel"],
+                    activation_type=QuantType[settings["activation_type"]],
+                    weight_type=QuantType[settings["weight_type"]],
+                    reduce_range=settings["reduce_range"], calibrate_method=methods[method],
                     nodes_to_exclude=keep_float or None, extra_options=extra)
     onnx.checker.check_model(str(dst))
 
@@ -319,6 +329,26 @@ def cpu_model() -> str:
             if line.startswith("model name"):
                 return line.split(":", 1)[1].strip()
     return platform.processor() or platform.machine()
+
+
+def cpu_int8_flags() -> dict:
+    """Instruction sets that matter for INT8 kernels, from /proc/cpuinfo (Linux only).
+
+    Without VNNI, ONNX Runtime's x86 U8S8 kernels add pairs of uint8 x int8 products
+    in int16 (vpmaddubsw), which can saturate; reduce_range or U8U8 avoids it.
+    """
+    cpuinfo = Path("/proc/cpuinfo")
+    flags = set()
+    if cpuinfo.exists():
+        for line in cpuinfo.read_text().splitlines():
+            if line.startswith("flags"):
+                flags = set(line.split(":", 1)[1].split())
+                break
+    names = ["avx2", "avx512f", "avx512_vnni", "avx_vnni", "amx_int8"]
+    found = {f: f in flags for f in names}
+    found["vnni"] = found["avx512_vnni"] or found["avx_vnni"]
+    found["flags_read"] = bool(flags)
+    return found
 
 
 def read_json(path: Path) -> dict:
